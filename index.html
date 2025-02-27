@@ -64,12 +64,19 @@
             padding: 5px;
         }
 
+    /* Ocultar el input de archivo */
+    #fileInput {
+      display: none;
+    }
+
     /* Responsivo */
     @media (max-width: 600px) {
       form {
         padding: 10px;
       }
     }
+
+
   </style>
 </head>
 <body>
@@ -106,7 +113,7 @@
 
     <!-- Correo electrónico -->
     <label for="email">Correo electrónico</label>
-    <input type="text" id="email" name="email" required>
+    <input type="email" id="email" name="email" required>
 
     <!-- CURP -->
     <label for="curp">CURP</label>
@@ -192,32 +199,42 @@
       <!-- Las opciones se generarán dinámicamente con JavaScript -->
     </select>
 
+    <!-- Segundo Select (dinámico) -->
+    <label for="subfuncion">Subcategoría:</label>
+    <select id="subfuncion" name="subfuncion" disabled>
+      <option value="">Selecciona una subcategoría</option>
+    </select>
   <!-- DATOS GENERALES DEL USUARIO --> 
 
-    <!-- SUBIDA DE ARCHIVOS -->
-     <div>
-      <h2>Subir Archivos</h2>
+    <!-- SUBIDA DE ARCHIVOS -->     
+    
+      <h2>Cargar imagen</h2>
       <!-- <label for="archivo">Seleccionar un archivo (PDF, imagen, etc.)</label>
       <input type="file" id="archivo" name="archivo" accept=".pdf,.jpg,.png,.jpeg"> -->
+      <!-- <button id="cargarImg"></button> -->
       <input type="file" id="fileInput" accept="image/*">
-    <button onclick="convertToBase64()">Convertir</button>
+      <!-- <button onclick="convertToBase64()">Convertir</button> -->
+      <button type="button" id="btn-img" onclick="abrirPathImg()">Abrir</button>
 
-    <h3>Imagen Cargada:</h3>
-    <img id="preview" src="" alt="Vista previa">
+      <!-- Área para mostrar la imagen seleccionada -->
+      <h3>Imagen Cargada:</h3>
+      <div id="imagePreview" style="margin-top: 20px;"></div>
+      
+      <!-- <img id="preview" src="" alt="Vista previa"> -->
 
-    <h3>Base64:</h3>
-    <textarea id="output" rows="6" cols="50" readonly></textarea>
+      <!-- <h3>Base64:</h3>
+      <textarea id="output" rows="6" cols="50" readonly></textarea> -->
     </div>
 
-    <div>
+    
       <!-- reCAPTCHA -->
       <!-- <div class="g-recaptcha" data-sitekey="TU-CLAVE-PUBLICA-GOOGLE-RECAPTCHA"></div> -->
 
       <!-- BOTÓN DE ENVÍO -->
-      <button type="button" id="btn-enviar" onclick="enviarFormulario()">Enviar Registro</button>
+      <button type="button" id="btn-enviar" onclick="enviarFormulario()" >Enviar Registro</button>
   </div>
 
-  </form>
+  </form>  
 
   <!-- SCRIPT PARA MANEJAR EL FORMULARIO -->
   <script src="forms.js"></script>
