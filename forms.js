@@ -1,6 +1,4 @@
-
-const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbxjdUiro5VagJHK9GUm-DIZ-PCo-0oINfzqKHCxNUwSTZE5xy0Juk7eWy_umJ2URBQX/exec";  // prueba08
-
+const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbyP7Rm7Eno2tFo7IF3wDHVOFxqjMVW-cPvSa9IU7tk8SZx7jZtlutoyUnXcKrj61HIP/exec";
 function $(id) {
   return document.getElementById(id);
 }
@@ -54,25 +52,6 @@ const laEscolaridad = [
   "Primaria", "Secundaria", "Media superior", "Superior"
 ];
 
-const asociacion = [
-  "Asociación de Deportes de Montaña y Escalada del Estado de Tlaxcala, A.C.",
-  "Asociación de Excursionismo y Montañismo del Estado de Puebla, A.C.",
-  "Asociación Michoacana de Deportes de Montaña y Escalada, A.C.",
-  "Asociación de Excursionismo, Montañismo y Escalada de Jalisco, A.C.",
-  "Asociación de Excursionismo y Montañismo del Instituto Politécnico Nacional",
-  "Asociación de Excursionismo, Montañismo y Escalada del Estado de Nuevo León, A.C.",
-  "Asociación de Montañismo de la UNAM",
-  "Asociación de Escalada Deportiva del Estado de Oaxaca, A.C.",
-  "Asociación Hidalguense de Excursionismo, Alpinismo y Exploración, A.C.",
-  "Asociación de Excursionismo, Montañismo y Escalada del Estado de Nayarit, A.C.",
-  "Asociación de Deportes de Montaña y Escalada del Distrito Federal, A.C.",
-  "Asociación Potosina de Escalada Deportiva, AC",
-  "Asociación de Montañismo, Escalada y Excursionismo de Baja California AC",
-  "Asociación de Montaña y Escalada de Chihuahua AC",
-  "Asociación de Deportes de Montaña y Escalada de Querétaro AC",
-  "Asociación Aguascalentense de Deportes de Montaña y Escalada AC"
-];
-
 const funcion = [
   "Deportista", "Entrenador", "Fisiatra", "Juez/Árbitro", "Personal administrativo", "Prensa",
   "Voluntariado", "Personal técnico", "Consejo directivo", "Servicio médico"
@@ -82,8 +61,8 @@ const funcion_personalTec = [
   "Equipador de rutas", "Equipador de barrancos", "Registro de senderos", "Medio ambiente", "Acceso", "Seguridad", "Armador de bloques"
 ];
 const funcion_consejo = [
-  "Presidente club", "Vicepresidente club", "Secretario club", "Presidente Asociación", "Vicepresidente  Asociación",
-  "Tesorero  Asociación", "Secretario  Asociación", "Vocal  Asociación", "Comisario  Asociación", "Representante Jurídico"
+  "Presidente club", "Vicepresidente club", "Secretario club", "Presidente asociación", "Vicepresidente asociación",
+  "Tesorero asociación", "Secretario asociación", "Vocal directivo asociación", "Vocal deportivo asociacón", "Comisario asociación", "Representante jurídico asociación"
 ];
 
 const funcion_serMed = [
@@ -94,24 +73,96 @@ const funcion_serMed = [
 var laFuncion = "";
 var laSubFuncion = "";
 var base64String = "";
+var lasDisciplinas = "";
+var asociacionSelec = "";
+var clubSelec = "";
 /* Fin de variables GLOBALES*/
 
 // Al cargar la página, generamos las opciones de los selects
 window.addEventListener('DOMContentLoaded', () => {
+  fetchData("?tipo=clubes");
   generarOpcionesSelect("genero", elGenero);
   generarOpcionesSelect("escolaridad", laEscolaridad);
   generarOpcionesSelect("estado", estados);
-  generarOpcionesSelect("disciplina", disciplinas);
+  generarCheckboxes();
   generarOpcionesSelect("tipoSangre", tipoSangre);
   generarOpcionesSelect("funcion", funcion);
-
+  //
   cargaDataTemporal();
-  laFuncion = GV('funcion');  
+  laFuncion = GV('funcion');
 });
+
+
+// Función para enviar una solicitud GET
+async function fetchData(tipo) {
+  //const url = URL_ACTIVA;
+  try {
+    const respuesta = await fetch(URL_ACTIVA);
+    if (!respuesta.ok) {
+      throw new Error(`Error en la solicitud: ${respuesta.status}`);
+    }
+
+    const datos = await respuesta.json();
+    console.log("Datos recibidos:", datos);        
+    llenarSelectAsociaciones(datos);
+    //const _x = $('clubes');
+    //llenarSelectClubes(datos, _x);
+  } catch (error) {
+    console.error("Error al obtener datos:", error);
+  }
+}
+
+function llenarSelectAsociaciones(clubes) {
+  let selectAsociaciones = $("asociacion");
+  for (let estado in clubes) {
+    let option = document.createElement("option");
+    option.value = estado; // Usamos el nombre del estado como valor
+    option.textContent = `${estado} - ${clubes[estado].asociacion}`;
+    selectAsociaciones.appendChild(option);
+  }
+  // Escuchar cambios en el select de asociaciones
+  selectAsociaciones.addEventListener("change", function () {
+    let estadoSeleccionado = this.value;
+    llenarSelectClubes(clubes, estadoSeleccionado);
+  });
+}
+
+// Función para llenar el select de clubes
+function llenarSelectClubes(clubes, estado) {
+  asociacionSelec = clubes[estado].asociacion; // guardamos la Asociación
+  console.log("Asociación seleccionada: ", asociacionSelec);
+  let selectClubes = $("clubes");
+  selectClubes.innerHTML = '<option value="">Seleccione un club</option>'; // Limpiar antes de llenar  
+  var cambios = true;
+  if (estado && clubes[estado]) {
+    clubes[estado].clubes.forEach(club => {
+      if (club !== "Sin clubes") {
+        let option = document.createElement("option");
+        option.value = club;
+        option.textContent = club;
+        selectClubes.appendChild(option);
+        
+      } else {
+        console.log("No hay clubes");
+        selectClubes.innerHTML = '<option value="">Sin clubes</option>'; // Limpiamos
+        clubSelec = "Sin clubes";
+        cambios = false;
+      }
+    });
+  } 
+  if(cambios === true){
+    // Acá escuchamos cuando el usuario seleccione un club
+    selectClubes.addEventListener("change", function () {      
+      clubSelec = this.value;
+      console.log("Club seleccionado: ", clubSelec);
+    });
+  }
+}
+
 
 // Función para generar las opciones de un select a partir de un array
 function generarOpcionesSelect(selectId, opciones) {
-  const selectElement = document.getElementById(selectId);
+  const selectElement = $(selectId);
 
   // Añadir una opción inicial vacía
   const opcionVacia = document.createElement("option");
@@ -128,61 +179,47 @@ function generarOpcionesSelect(selectId, opciones) {
   });
 }
 
-/* Función TEMPORAL para cargar datos al formulario */
-function cargaDataTemporal() {
-  const dT = {
-    nombre: "Marto",
-    paterno: "Jacinto",
-    materno: "Saldivar",
-    fechaNacimiento: "02/23/1925",
-    telefono: "555-1234",
-    email: "juan.perez@example.com",
-    curp: "ADJSS15584",
-    genero: "Masculino",  // ¡Atención!
-    escolaridad: "Secundaria",
-    estado: "Puebla",
-    municipio: "Texmelucan",
-    colonia: "La Brava",
-    calleNumero: "sangría #95",
-    zip: "350158",
-    contactoEmergencia: "Juanita Maldonado",
-    telefonoEmergencia: "587-36984",
-    enfermedades: "psicosis",
-    alergias: "al populismo",
-    tipoSangre: "O+",
-    asociacion: "La de montaña",
-    club: "Tlahui",
-    id_afiliacion: "29+36",
-    disciplina: "Alta Montaña",
-    funcion: "Deportista",
-  };
-  $('nombre').value = dT.nombre;
-  $('apellidoPaterno').value = dT.paterno;
-  $('apellidoMaterno').value = dT.materno;
-  $('fechaNacimiento').value = dT.fechaNacimiento;
-  $('numTelefono').value = dT.telefono;
-  $('email').value = dT.email;
-  $('curp').value = dT.curp;
-  $('genero').value = dT.genero;
-  $('escolaridad').value = dT.escolaridad;
-  $('estado').value = dT.estado;
-  $('municipio').value = dT.municipio;
-  $('colonia').value = dT.colonia;
-  $('calle_numero').value = dT.calleNumero;
-  $('codigo_postal').value = dT.zip;
-  $('contanto_emergencia').value = dT.contactoEmergencia;
-  $('telefono_emergencia').value = dT.telefonoEmergencia;
-  $('enfermedades').value = dT.enfermedades;
-  $('alergias').value = dT.alergias;
-  $('tipoSangre').value = dT.tipoSangre;
-  $('asociacion').value = dT.asociacion;
-  $('club').value = dT.club;
-  $('id_afiliacion').value = dT.id_afiliacion;
-  $('disciplina').value = dT.disciplina;
-  $('funcion').value = dT.funcion;
+// Función para generar los checkboxes para las Disciplinas
+function generarCheckboxes() {
+  const container = $('checkboxesContainer');
+  disciplinas.forEach(actividad => {
+    const label = document.createElement('label');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.name = 'actividad';
+    checkbox.value = actividad;
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(' ' + actividad));
+    container.appendChild(label);
+    container.appendChild(document.createElement('br'));
+  });
 }
 
-function limpiaCampos(){
+
+/* Función TEMPORAL para cargar datos al formulario */
+function cargaDataTemporal() {
+  $('nombre').value = "Bartolo";
+  $('apellidoPaterno').value = "Rodriguez";
+  $('apellidoMaterno').value = "González";
+  $('email').value = "correo.ejemplo@hotmail.com";
+  $('curp').value = "YJUY15874AQ";
+  $('genero').value = "Femenino";
+  $('escolaridad').value = "Media superior";
+  $('estado').value = "Tlaxcala";
+  $('municipio').value = "Chiautempan";
+  $('colonia').value = "Centro";
+  $('calle_numero').value = "Peligro #7";
+  $('codigo_postal').value = "63587";
+  $('contanto_emergencia').value = "Florentino Saldivar";
+  $('telefono_emergencia').value = "2461235698";
+  $('enfermedades').value = "Psico";
+  $('alergias').value = "Ninguna";
+  $('tipoSangre').value = "O-";
+  $('funcion').value = "Deportista";
+  $('subfuncion').value = ""
+}
+
+function limpiaCampos() {
   $('nombre').value = "";
   $('apellidoPaterno').value = "";
   $('apellidoMaterno').value = "";
@@ -190,23 +227,23 @@ function limpiaCampos(){
   $('numTelefono').value = "";
   $('email').value = "";
   $('curp').value = "";
-  $('genero').value = "";
-  $('escolaridad').value = dT.escolaridad;
-  $('estado').value = dT.estado;
-  $('municipio').value = dT.municipio;
-  $('colonia').value = dT.colonia;
-  $('calle_numero').value = dT.calleNumero;
-  $('codigo_postal').value = dT.zip;
-  $('contanto_emergencia').value = dT.contactoEmergencia;
-  $('telefono_emergencia').value = dT.telefonoEmergencia;
-  $('enfermedades').value = dT.enfermedades;
-  $('alergias').value = dT.alergias;
-  $('tipoSangre').value = dT.tipoSangre;
-  $('asociacion').value = dT.asociacion;
-  $('club').value = dT.club;
-  $('id_afiliacion').value = dT.id_afiliacion;
-  $('disciplina').value = dT.disciplina;
-  $('funcion').value = dT.funcion;
+  $('genero').value = "Selecciona una opción";
+  $('escolaridad').value = "Selecciona una opción";
+  $('estado').value = "Selecciona una opción";
+  $('municipio').value = "";
+  $('colonia').value = "";
+  $('calle_numero').value = "";
+  $('codigo_postal').value = "";
+  $('contanto_emergencia').value = "";
+  $('telefono_emergencia').value = "";
+  $('enfermedades').value = "";
+  $('alergias').value = "";
+  $('tipoSangre').value = "Selecciona una opción";
+  $('asociacion').value = "Selecciona una opción";
+  //$('clubes').value = "";
+  $('disciplina').value = "Selecciona una opción";
+  $('funcion').value = "Selecciona una opción";
+  $('subfuncion').value = "";
 }
 
 
@@ -248,6 +285,7 @@ function regresaDatosform() {
   const idAso = formatoParcialCredencial();
 
   const formData = {
+    destino: "formulario",
     idAsociado: idAso,
     nombre: GV('nombre'),
     apellidoPaterno: GV('apellidoPaterno'),
@@ -268,10 +306,9 @@ function regresaDatosform() {
     enfermedades: GV('enfermedades'),
     alergias: GV('alergias'),
     tipoSangre: GV('tipoSangre'),
-    asociacion: GV('asociacion'),
-    club: GV('club'),
-    disciplina: GV('disciplina'),
-    id_afiliacion: GV('id_afiliacion'),
+    asociacion: asociacionSelec,
+    club: clubSelec,
+    disciplina: lasDisciplinas,
     funcion: laFuncion,
     subfuncion: laSubFuncion,
     imagenBase64: base64String
@@ -343,7 +380,6 @@ function convertToBase64() {
     output.value = base64String;
     preview.src = base64String; // Mostrar la imagen cargada
   };
-
   reader.readAsDataURL(file);
 }
 
@@ -365,6 +401,18 @@ function formatoParcialCredencial() {
   return frm;
 }
 
+// Función para guardar la selección de las Disciplinas
+function guardarDisciplina() {
+  const checkboxes = document.querySelectorAll('input[name="actividad"]:checked');
+  const actividadesSeleccionadas = [];
+  checkboxes.forEach(checkbox => {
+    actividadesSeleccionadas.push(checkbox.value);
+  });
+  lasDisciplinas = actividadesSeleccionadas.join(', ');
+  //console.log("Disciplinas seleccionadaS: " + resultado);  
+}
+
+
 function enviarPost(jsonData) {
   const _bt = $('btn-enviar');
   const _btImg = $('btn-img');
@@ -378,7 +426,7 @@ function enviarPost(jsonData) {
 
   // Configurar el objeto de headers usando el tipo de contenido
 
-  fetch(URL_ACTIVA, {    
+  fetch(URL_ACTIVA, {
     method: 'POST',
     body: jsonData,
     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
@@ -396,7 +444,7 @@ function enviarPost(jsonData) {
         console.log("Éxito:", data.message);
         _bt.textContent = "Registro enviado";
         //alert("Éxito: " + data.message + "  ID: " + data.id); // Mostrar un mensaje al usuario        
-        alert("Registro de " + data.id + " enviado exitosamente.")
+        alert("Este es tu número de registro " + data.id + " enviado exitosamente.")
       } else {
         console.error("Error:", data.message);
         alert("Error: " + data.message); // Mostrar un mensaje de error al usuario
@@ -413,16 +461,23 @@ function enviarPost(jsonData) {
 
 // Función para verificar si todos los campos están completos
 function verificarCampos() {
-  const frm = $('registroForm');  // Obtener referencias al formulario y al botón de envío
-  const cR = frm.querySelectorAll("[required]");
-  let todosCompletos = true;
-  cR.forEach(campo => {
-    if (!campo.value.trim() || !campo.checkValidity()) {
-      todosCompletos = false;
-      alert("Por favor verifica los datos ingresados.");
-    }
-  });
-  return todosCompletos;
+  guardarDisciplina();
+  if (lasDisciplinas === "") {
+    alert("Selecciona al menos una disciplina");
+    return false;
+  } else {
+    let todosCompletos = true;
+    const frm = $('registroForm');  // Obtener referencias al formulario y al botón de envío
+    const cR = frm.querySelectorAll("[required]");
+
+    cR.forEach(campo => {
+      if (!campo.value.trim() || !campo.checkValidity()) {
+        todosCompletos = false;
+        alert("Por favor verifica los datos ingresados.");
+      }
+    });
+    return todosCompletos;
+  }
 }
 
 function enviarFormulario() {
