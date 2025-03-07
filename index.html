@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Registro de Usuarios</title>
@@ -24,7 +25,8 @@
       margin: auto;
     }
 
-    h1, h2 {
+    h1,
+    h2 {
       text-align: center;
     }
 
@@ -34,7 +36,8 @@
       font-weight: bold;
     }
 
-    input, select {
+    input,
+    select {
       width: 100%;
       padding: 8px;
       box-sizing: border-box;
@@ -58,16 +61,53 @@
     }
 
     img {
-            margin-top: 20px;
-            max-width: 300px;
-            border: 1px solid #ddd;
-            padding: 5px;
-        }
+      margin-top: 20px;
+      max-width: 300px;
+      border: 1px solid #ddd;
+      padding: 5px;
+    }
 
     /* Ocultar el input de archivo */
     #fileInput {
       display: none;
     }
+
+    /* Estilos para el fieldset */
+    fieldset {
+      width:  80%;
+      /* Ancho del recuadro */
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+
+    legend {
+      font-size: 1.2em;
+      font-weight: bold;
+      padding: 0 10px;
+    }
+
+    /* Estilos para organizar dos checkboxes por fila */
+    .checkbox-container {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-container label {
+            flex: 1 1 45%; /* Dos columnas con un poco de espacio entre ellas */
+            margin: 5px 0;
+            display: flex;
+            align-items: center; /* Alinea verticalmente el checkbox con el texto */
+        }
+        .checkbox-container input {
+            margin-right: 10px; /* Espacio entre el checkbox y el texto */
+        }    
+    /* Estilos para el resultado */
+    #resultado {
+            margin-top: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
 
     /* Responsivo */
     @media (max-width: 600px) {
@@ -75,15 +115,14 @@
         padding: 10px;
       }
     }
-
-
   </style>
 </head>
+
 <body>
-  
+
   <form id="registroForm">
     <h1>Formulario de Registro</h1>
-                
+
     <!-- INFORMACIÓN DEL ASOCIADO -->
     <h2>Información del Asociado</h2>
 
@@ -109,7 +148,7 @@
 
     <!-- Teléfono de contacto  -->
     <label for="numTelefono">Teléfono</label>
-    <input type="text" id="numTelefono" name="numTelefono" required>
+    <input type="text" id="numTelefono" name="numTelefono" required>    
 
     <!-- Correo electrónico -->
     <label for="email">Correo electrónico</label>
@@ -147,51 +186,60 @@
 
     <!-- Calle y número -->
     <label for="calle_numero">Calle y número</label>
-    <input type="text" id="calle_numero" name="calle_numero" required> 
+    <input type="text" id="calle_numero" name="calle_numero" required>
 
     <!-- Código Postal -->
     <label for="codigo_postal">Código postal</label>
-    <input type="text" id="codigo_postal" name="codigo_postal" required>  
+    <input type="text" id="codigo_postal" name="codigo_postal" required>
 
     <!-- Contacto de emergencia -->
     <label for="contanto_emergencia">Contacto de emergencia</label>
-    <input type="text" id="contanto_emergencia" name="contanto_emergencia" required>   
+    <input type="text" id="contanto_emergencia" name="contanto_emergencia" required>
 
     <!-- Teléfono emergencia -->
     <label for="telefono_emergencia">Teléfono de emergencia</label>
-    <input type="text" id="telefono_emergencia" name="telefono_emergencia" required>   
+    <input type="text" id="telefono_emergencia" name="telefono_emergencia" required>
 
     <!-- Enfermedades -->
     <label for="enfermedades">Enfermedades</label>
-    <input type="text" id="enfermedades" name="enfermedades" required>    
+    <input type="text" id="enfermedades" name="enfermedades" required>
 
     <!-- Alergias -->
     <label for="alergias">Alergias</label>
-    <input type="text" id="alergias" name="alergias" required>    
+    <input type="text" id="alergias" name="alergias" required>
 
-     <!-- Tipo de sangre -->
-     <label for="tipoSangre">Tipo de sangre</label>
-     <select id="tipoSangre" name="tipoSangre" required>
-       <!-- Las opciones se generarán dinámicamente con JavaScript -->
-     </select>
+    <!-- Tipo de sangre -->
+    <label for="tipoSangre">Tipo de sangre</label>
+    <select id="tipoSangre" name="tipoSangre" required>
+      <!-- Las opciones se generarán dinámicamente con JavaScript -->
+    </select>
 
-     <!-- Asociación -->
+    <!-- Asociación -->
     <label for="asociacion">Asociación</label>
-    <input type="text" id="asociacion" name="asociacion" required> 
-    
-     <!-- Club -->
-     <label for="club">Club</label>
-     <input type="text" id="club" name="club" required> 
+    <select id="asociacion" name="asociacion" required>
 
-      <!-- ID Afiliación -->
-      <label for="id_afiliacion">ID Afiliación</label>
-      <input type="text" id="id_afiliacion" name="id_afiliacion" required> 
+    </select>
+    <!-- <input type="text" id="asociacion" name="asociacion" required>  -->
+
+    <!-- Club -->
+    <label for="clubes">Club</label>
+    <select id="clubes" name="clubes" required>
+
+    </select>
+    <br>
+    <br>
 
     <!-- Disciplina -->
-    <label for="disciplina">Disciplina</label>
-    <select id="disciplina" name="disciplina" required>
-      <!-- Las opciones se generarán dinámicamente con JavaScript -->
-    </select>   
+    <fieldset>
+      <legend>Disciplinas</legend>
+      <div id="checkboxesContainer" class="checkbox-container">
+        <!-- Los checkboxes se generarán aquí dinámicamente -->
+      </div>
+    </fieldset>
+    <br>
+    <p id="resultado"></p>
+    <!-- Las opciones se generarán dinámicamente con JavaScript -->
+
 
     <!-- Función -->
     <label for="funcion">Función</label>
@@ -200,43 +248,44 @@
     </select>
 
     <!-- Segundo Select (dinámico) -->
-    <label for="subfuncion">Subcategoría:</label>
+    <label for="subfuncion">Subfunción:</label>
     <select id="subfuncion" name="subfuncion" disabled>
-      <option value="">Selecciona una subcategoría</option>
+      <!-- <option value="">Selecciona una subfunción</option> -->
     </select>
-  <!-- DATOS GENERALES DEL USUARIO --> 
+    <!-- DATOS GENERALES DEL USUARIO -->
 
-    <!-- SUBIDA DE ARCHIVOS -->     
-    
-      <h2>Cargar imagen</h2>
-      <!-- <label for="archivo">Seleccionar un archivo (PDF, imagen, etc.)</label>
+    <!-- SUBIDA DE ARCHIVOS -->
+
+    <h2>Cargar fotografía para credencial:</h2>
+    <!-- <label for="archivo">Seleccionar un archivo (PDF, imagen, etc.)</label>
       <input type="file" id="archivo" name="archivo" accept=".pdf,.jpg,.png,.jpeg"> -->
-      <!-- <button id="cargarImg"></button> -->
-      <input type="file" id="fileInput" accept="image/*">
-      <!-- <button onclick="convertToBase64()">Convertir</button> -->
-      <button type="button" id="btn-img" onclick="abrirPathImg()">Abrir</button>
+    <!-- <button id="cargarImg"></button> -->
+    <input type="file" id="fileInput" accept="image/*">
+    <!-- <button onclick="convertToBase64()">Convertir</button> -->
+    <button type="button" id="btn-img" onclick="abrirPathImg()">Abrir</button>
 
-      <!-- Área para mostrar la imagen seleccionada -->
-      <h3>Imagen Cargada:</h3>
-      <div id="imagePreview" style="margin-top: 20px;"></div>
-      
-      <!-- <img id="preview" src="" alt="Vista previa"> -->
+    <!-- Área para mostrar la imagen seleccionada -->
+    <h3>Imagen Cargada:</h3>
+    <div id="imagePreview" style="margin-top: 20px;"></div>
 
-      <!-- <h3>Base64:</h3>
+    <!-- <img id="preview" src="" alt="Vista previa"> -->
+
+    <!-- <h3>Base64:</h3>
       <textarea id="output" rows="6" cols="50" readonly></textarea> -->
     </div>
 
-    
-      <!-- reCAPTCHA -->
-      <!-- <div class="g-recaptcha" data-sitekey="TU-CLAVE-PUBLICA-GOOGLE-RECAPTCHA"></div> -->
 
-      <!-- BOTÓN DE ENVÍO -->
-      <button type="button" id="btn-enviar" onclick="enviarFormulario()" >Enviar Registro</button>
-  </div>
+    <!-- reCAPTCHA -->
+    <div class="g-recaptcha" data-sitekey="6LfEoOQqAAAAAON3jRE-cgIRwx7NVjlWmkX9ZWd4"></div>
 
-  </form>  
+    <!-- BOTÓN DE ENVÍO -->
+    <button type="button" id="btn-enviar" onclick="enviarFormulario()">Enviar Registro</button>
+    </div>
+
+  </form>
 
   <!-- SCRIPT PARA MANEJAR EL FORMULARIO -->
   <script src="forms.js"></script>
 </body>
+
 </html>
