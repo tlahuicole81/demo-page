@@ -1,4 +1,4 @@
-const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbyP7Rm7Eno2tFo7IF3wDHVOFxqjMVW-cPvSa9IU7tk8SZx7jZtlutoyUnXcKrj61HIP/exec";
+const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbxUikU8nYgjUAFrmntQKEATjZDMprmlvQqs2BK7nYJdOYaCVntSVKnKDIOYA1V3WbNp/exec";
 function $(id) {
   return document.getElementById(id);
 }
@@ -88,7 +88,7 @@ window.addEventListener('DOMContentLoaded', () => {
   generarOpcionesSelect("tipoSangre", tipoSangre);
   generarOpcionesSelect("funcion", funcion);
   //
-  cargaDataTemporal();
+  //cargaDataTemporal();
   laFuncion = GV('funcion');
 });
 
@@ -113,16 +113,24 @@ async function fetchData(tipo) {
 }
 
 function llenarSelectAsociaciones(clubes) {
-  let selectAsociaciones = $("asociacion");
+  let selectAsociaciones = $("asociacion");  
+  let cont = true;
+  let _estado1 ="";
   for (let estado in clubes) {
     let option = document.createElement("option");
+    if(cont === true){
+      cont = false;
+      _estado1 = estado;
+    }
     option.value = estado; // Usamos el nombre del estado como valor
     option.textContent = `${estado} - ${clubes[estado].asociacion}`;
-    selectAsociaciones.appendChild(option);
-  }
+    selectAsociaciones.appendChild(option);    
+  }    
+  llenarSelectClubes(clubes, _estado1);
   // Escuchar cambios en el select de asociaciones
-  selectAsociaciones.addEventListener("change", function () {
+  selectAsociaciones.addEventListener("change", function () {    
     let estadoSeleccionado = this.value;
+    console.log("Ehhhh  " + this.value);
     llenarSelectClubes(clubes, estadoSeleccionado);
   });
 }
@@ -283,6 +291,16 @@ document.getElementById('subfuncion').addEventListener('change', function () {
 
 function regresaDatosform() {
   const idAso = formatoParcialCredencial();
+  let _enfermedades = GV('enfermedades');
+  if(_enfermedades === ""){
+    _enfermedades = "No enfermedades";
+  }
+  let _alergias = GV('alergias');
+  if(_alergias === ""){    
+    _alergias = "No alergias";    
+  }
+  console.log("Enfermedades: ", _enfermedades);
+  console.log("Alergias: ", _alergias);
 
   const formData = {
     destino: "formulario",
@@ -303,8 +321,8 @@ function regresaDatosform() {
     zip: GV('codigo_postal'),
     contactoEmergencia: GV('contanto_emergencia'),
     telefonoEmergencia: GV('telefono_emergencia'),
-    enfermedades: GV('enfermedades'),
-    alergias: GV('alergias'),
+    enfermedades: _enfermedades,
+    alergias: _alergias,
     tipoSangre: GV('tipoSangre'),
     asociacion: asociacionSelec,
     club: clubSelec,
@@ -349,7 +367,7 @@ fileInput.addEventListener("change", function (event) {
         console.log("Cargado basa64");
         base64String = event.target.result;
         //output.value = base64String;
-        console.log(base64String);
+        //console.log(base64String);  // <----
         //preview.src = base64String; // Mostrar la imagen cargada
       };
       reader.readAsDataURL(file);
@@ -415,11 +433,9 @@ function guardarDisciplina() {
 
 function enviarPost(jsonData) {
   const _bt = $('btn-enviar');
-  const _btImg = $('btn-img');
-  _bt.disabled = true; // Deshabilitar el botón
+  const _btImg = $('btn-img');  
   _btImg.disabled = true;
-
-  console.log('Datos en formato JSON:', jsonData);
+  
   //contentTypeHeader = 'application/json; charset=utf-8';  // parece que este no
   //contentTypeHeader = 'text/plain;charset=utf-8'; // este parece que sí
   //contentTypeHeader = 'application/json'; este no
@@ -482,7 +498,10 @@ function verificarCampos() {
 
 function enviarFormulario() {
   if (verificarCampos()) {
-    console.log("A enviar el formulario");
+    console.log("Desactivamos el botón");
+    const _bt = $('btn-enviar');
+    _bt.textContent = "Espera unos segundos por favor...";
+    _bt.disabled = true; // Deshabilitar el botón
     var jsonData = regresaDatosform();
     enviarPost(jsonData);
   } else {
