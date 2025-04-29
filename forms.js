@@ -1,4 +1,4 @@
-const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbxUikU8nYgjUAFrmntQKEATjZDMprmlvQqs2BK7nYJdOYaCVntSVKnKDIOYA1V3WbNp/exec";
+const URL_ACTIVA0 = "https://script.google.com/macros/s/AKfycbzw644S7yCml9Ui_AZvu29swKpUeshyqK535fKr-WsqPGq6b5_8e5bZPyj-6JB3lkMxlw/exec"; // 01
 function $(id) {
   return document.getElementById(id);
 }
@@ -78,9 +78,10 @@ var asociacionSelec = "";
 var clubSelec = "";
 /* Fin de variables GLOBALES*/
 
+
 // Al cargar la página, generamos las opciones de los selects
 window.addEventListener('DOMContentLoaded', () => {
-  fetchData("?tipo=clubes");
+  fetchData();
   generarOpcionesSelect("genero", elGenero);
   generarOpcionesSelect("escolaridad", laEscolaridad);
   generarOpcionesSelect("estado", estados);
@@ -94,16 +95,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 // Función para enviar una solicitud GET
-async function fetchData(tipo) {
-  //const url = URL_ACTIVA;
+async function fetchData() {
   try {
-    const respuesta = await fetch(URL_ACTIVA);
+    const respuesta = await fetch(URL_ACTIVA0);
     if (!respuesta.ok) {
       throw new Error(`Error en la solicitud: ${respuesta.status}`);
     }
 
     const datos = await respuesta.json();
-    console.log("Datos recibidos:", datos);        
+    console.log("Datos recibidos:", datos);
     llenarSelectAsociaciones(datos);
     //const _x = $('clubes');
     //llenarSelectClubes(datos, _x);
@@ -113,22 +113,22 @@ async function fetchData(tipo) {
 }
 
 function llenarSelectAsociaciones(clubes) {
-  let selectAsociaciones = $("asociacion");  
+  let selectAsociaciones = $("asociacion");
   let cont = true;
-  let _estado1 ="";
+  let _estado1 = "";
   for (let estado in clubes) {
     let option = document.createElement("option");
-    if(cont === true){
+    if (cont === true) {
       cont = false;
       _estado1 = estado;
     }
     option.value = estado; // Usamos el nombre del estado como valor
     option.textContent = `${estado} - ${clubes[estado].asociacion}`;
-    selectAsociaciones.appendChild(option);    
-  }    
+    selectAsociaciones.appendChild(option);
+  }
   llenarSelectClubes(clubes, _estado1);
   // Escuchar cambios en el select de asociaciones
-  selectAsociaciones.addEventListener("change", function () {    
+  selectAsociaciones.addEventListener("change", function () {
     let estadoSeleccionado = this.value;
     console.log("Ehhhh  " + this.value);
     llenarSelectClubes(clubes, estadoSeleccionado);
@@ -149,7 +149,7 @@ function llenarSelectClubes(clubes, estado) {
         option.value = club;
         option.textContent = club;
         selectClubes.appendChild(option);
-        
+
       } else {
         console.log("No hay clubes");
         selectClubes.innerHTML = '<option value="">Sin clubes</option>'; // Limpiamos
@@ -157,10 +157,10 @@ function llenarSelectClubes(clubes, estado) {
         cambios = false;
       }
     });
-  } 
-  if(cambios === true){
+  }
+  if (cambios === true) {
     // Acá escuchamos cuando el usuario seleccione un club
-    selectClubes.addEventListener("change", function () {      
+    selectClubes.addEventListener("change", function () {
       clubSelec = this.value;
       console.log("Club seleccionado: ", clubSelec);
     });
@@ -199,7 +199,7 @@ function generarCheckboxes() {
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(' ' + actividad));
     container.appendChild(label);
-    container.appendChild(document.createElement('br'));
+    // container.appendChild(document.createElement('br'));
   });
 }
 
@@ -258,7 +258,6 @@ function limpiaCampos() {
 document.getElementById('funcion').addEventListener('change', function () {
   const funcionSeleccionada = GV('funcion');
   const sub = $('subfuncion');
-
   switch (funcionSeleccionada) {
     case 'Personal técnico':
       sub.innerHTML = "";
@@ -290,21 +289,19 @@ document.getElementById('subfuncion').addEventListener('change', function () {
 
 
 function regresaDatosform() {
-  const idAso = formatoParcialCredencial();
   let _enfermedades = GV('enfermedades');
-  if(_enfermedades === ""){
-    _enfermedades = "No enfermedades";
+  if (_enfermedades === "") {
+    _enfermedades = "No registradas";
   }
   let _alergias = GV('alergias');
-  if(_alergias === ""){    
-    _alergias = "No alergias";    
+  if (_alergias === "") {
+    _alergias = "No registradas";
   }
   console.log("Enfermedades: ", _enfermedades);
   console.log("Alergias: ", _alergias);
 
   const formData = {
     destino: "formulario",
-    idAsociado: idAso,
     nombre: GV('nombre'),
     apellidoPaterno: GV('apellidoPaterno'),
     apellidoMaterno: GV('apellidoMaterno'),
@@ -345,9 +342,10 @@ function abrirPathImg() {
 
 // Escuchar el cambio en el input de archivo
 fileInput.addEventListener("change", function (event) {
+  console.log("Versión 1");
   // Obtener el archivo seleccionado
   const file = event.target.files[0];
-  console.log("Revisando el input de la imagen");
+  //console.log("Revisando el input de la imagen");
   // Verificar si se seleccionó un archivo
   if (file) {
     console.log("Sí hay imagen");
@@ -357,20 +355,27 @@ fileInput.addEventListener("change", function (event) {
     if (file.size > maxSize) {
       alert("El archivo es demasiado grande. El tamaño máximo permitido es 2 MB.");
     } else {
-      // Crear una URL temporal para la imagen
-      const imageUrl = URL.createObjectURL(file);
-      // Mostrar la imagen en el área de previsualización
-      imagePreview.innerHTML = `<img src="${imageUrl}" alt="Vista previa" style="max-width: 100%; height: auto;">`;
-      // 
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        console.log("Cargado basa64");
-        base64String = event.target.result;
-        //output.value = base64String;
-        //console.log(base64String);  // <----
-        //preview.src = base64String; // Mostrar la imagen cargada
-      };
-      reader.readAsDataURL(file);
+      // 1) Detectamos BMP por MIME o extensión
+      const isBMP = file.type === "image/bmp" || file.name.toLowerCase().endsWith(".bmp");
+      if (!isBMP) {
+        console.log("No es un bmp");
+        // Crear una URL temporal para la imagen
+        const imageUrl = URL.createObjectURL(file);
+        // Mostrar la imagen en el área de previsualización
+        imagePreview.innerHTML = `<img src="${imageUrl}" alt="Vista previa" style="max-width: 100%; height: auto;">`;
+        // 
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          console.log("Acá poner función a redimensión");
+          base64String = event.target.result;
+          //output.value = base64String;
+          //console.log(base64String);  // <----
+          //preview.src = base64String; // Mostrar la imagen cargada
+        };
+        reader.readAsDataURL(file);
+      } else {
+        console.log("Tenemos un bmp");
+      }
     }
   } else {
     // Limpiar el área de previsualización si no se seleccionó un archivo
@@ -379,45 +384,39 @@ fileInput.addEventListener("change", function (event) {
   }
 });
 
-
-function convertToBase64() {
-  const fileInput = document.getElementById('fileInput');
-  const output = document.getElementById('output');
-  const preview = document.getElementById('preview');
-
-  if (fileInput.files.length === 0) {
-    alert("Por favor, selecciona una imagen.");
-    return;
-  }
-
-  const file = fileInput.files[0];
+function revisaBMP(file) {
+  // 2) Leemos como DataURL
   const reader = new FileReader();
-
-  reader.onload = function (event) {
-    base64String = event.target.result;
-    output.value = base64String;
-    preview.src = base64String; // Mostrar la imagen cargada
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      // 3) Creamos canvas y dibujamos la BMP
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      // 4) Exportamos como JPEG (puedes ajustar calidad 0.8)
+      canvas.toBlob(blob => {
+        // 5) Volvemos a convertir a Base64 para enviarlo
+        const reader2 = new FileReader();
+        reader2.onload = ev2 => {
+          base64String = ev2.target.result; // esto ya es data:image/jpeg;base64,...
+          // Actualiza la previsualización
+          imagePreview.innerHTML = `<img src="${base64String}" style="max-width:100%; height:auto;">`;
+        };
+        reader2.readAsDataURL(blob);
+      }, "image/jpeg", 0.8);
+    };
+    img.onerror = () => {
+      alert("No se pudo procesar el BMP. Usa JPG o PNG, por favor.");
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-
-/* Formato para el número de credencial:
-  Letra A (de afiliado)
-  Número de entidad federativa
-  Guión
-  4 letras RFC o CURP
-  Número consecutivo de registro estatal a 3 dígitos*
-  *Este valor se asignará cuando ya se haya enviado la información
-*/
-function formatoParcialCredencial() {
-  const ent = $('estado');
-  const curp = GV('curp');
-  const _curp = curp.substring(0, 4);
-  const numEstado = String(ent.selectedIndex).padStart(2, "0");
-  var frm = "A" + numEstado + "-" + _curp;
-  return frm;
-}
+// fmdmye@gmail.com   -- MontaNismo2025  -- fedMontana
 
 // Función para guardar la selección de las Disciplinas
 function guardarDisciplina() {
@@ -430,19 +429,17 @@ function guardarDisciplina() {
   //console.log("Disciplinas seleccionadaS: " + resultado);  
 }
 
-
 function enviarPost(jsonData) {
   const _bt = $('btn-enviar');
-  const _btImg = $('btn-img');  
+  const _btImg = $('btn-img');
   _btImg.disabled = true;
-  
+
   //contentTypeHeader = 'application/json; charset=utf-8';  // parece que este no
   //contentTypeHeader = 'text/plain;charset=utf-8'; // este parece que sí
   //contentTypeHeader = 'application/json'; este no
 
   // Configurar el objeto de headers usando el tipo de contenido
-
-  fetch(URL_ACTIVA, {
+  fetch(URL_ACTIVA0, {
     method: 'POST',
     body: jsonData,
     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
@@ -472,29 +469,79 @@ function enviarPost(jsonData) {
     });
 }
 
-// Obtener todos los campos requeridos
-//const camposRequeridos = formulario.querySelectorAll("[required]");
-
 // Función para verificar si todos los campos están completos
 function verificarCampos() {
   guardarDisciplina();
-  if (lasDisciplinas === "") {
-    alert("Selecciona al menos una disciplina");
-    return false;
-  } else {
-    let todosCompletos = true;
-    const frm = $('registroForm');  // Obtener referencias al formulario y al botón de envío
-    const cR = frm.querySelectorAll("[required]");
 
-    cR.forEach(campo => {
-      if (!campo.value.trim() || !campo.checkValidity()) {
-        todosCompletos = false;
-        alert("Por favor verifica los datos ingresados.");
-      }
-    });
-    return todosCompletos;
+  // Limpiamos errores previos
+  document.querySelectorAll('.error').forEach(el => {
+    el.classList.remove('error');
+  });
+
+  let todosCompletos = true;
+  // 1) Validación de disciplinas
+  if (lasDisciplinas === "") {
+    // Resaltamos el fieldset
+    document.querySelector('fieldset').classList.add('error');
+    todosCompletos = false;
+    //alert("Selecciona al menos una disciplina");
+    //return false;
   }
+  const frm = $('registroForm');  // Obtener referencias al formulario y al botón de envío
+  const requeridos = frm.querySelectorAll("[required]");
+
+  requeridos.forEach(campo => {
+    // Si es el teléfono, chequeamos 10 dígitos explícitamente
+    if (campo.id === 'numTelefono') {
+      console.log("Revisando teléfono....")
+      const soloDigitos = campo.value.replace(/\D/g, '');
+      if (!/^\d{10}$/.test(soloDigitos)) {
+        campo.classList.add('error');
+        todosCompletos = false;
+      }
+    }
+    else if (campo.id === "clubes") {
+      // Cuando estemos en clubes se verifica
+      const cAs = GV('asociacion');
+      console.log("El valor en asociación es: [", cAs, "]");
+      if (cAs === "-") {
+        console.log("No hay que verificar clubes");
+      } else {
+        // Si el valor seleccionado es diferente a "No asociación"
+        // entonces sí se debe verificar el campo "clubes"
+        if (!campo.value.trim() || !campo.checkValidity()) {
+          campo.classList.add('error');
+          todosCompletos = false;
+        }
+      }
+    }
+    // Si está vacío o inválido
+    else if (!campo.value.trim() || !campo.checkValidity()) {
+      campo.classList.add('error');
+      todosCompletos = false;
+      //alert("Por favor verifica los datos ingresados.");
+    }
+  });
+  if (!todosCompletos) {
+    alert("Por favor verifica los datos ingresados (marcados en rojo).");
+  }
+  return todosCompletos;
 }
+
+// Para todos los inputs y selects
+document.querySelectorAll('#registroForm input, #registroForm select').forEach(el => {
+  el.addEventListener('input', () => {    
+    el.classList.remove('error');
+  });
+});
+
+// Para los checkboxes (disciplinas), al hacer clic quitamos el error del fieldset
+document.querySelectorAll('input[type="checkbox"][name="actividad"]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    document.querySelector('fieldset').classList.remove('error');
+  });
+});
+
 
 function enviarFormulario() {
   if (verificarCampos()) {
