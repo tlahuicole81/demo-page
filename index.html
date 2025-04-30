@@ -9,84 +9,90 @@
   <!-- Importa la librería de reCAPTCHA de Google -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
-   :root {
-  --bg: #121212;
-  --surface: #1e1e1e;
-  --text-primary: #e0e0e0;
-  --text-secondary: #aaaaaa;
-  --accent: #bb86fc;
-  --error: #cf6679;
-}
+    :root {
+      --bg: #121212;
+      --surface: #1e1e1e;
+      --text-primary: #e0e0e0;
+      --text-secondary: #aaaaaa;
+      --accent: #bb86fc;
+      --error: #cf6679;
+    }
 
-/* Clase que pinta el borde y da un pequeño glow */
-.error {
-  border-color: var(--error) !important;
-  box-shadow: 0 0 0 3px rgba(207,103,121,0.4) !important;
-}
+    /* Clase que pinta el borde y da un pequeño glow */
+    .error {
+      border-color: var(--error) !important;
+      box-shadow: 0 0 0 3px rgba(207, 103, 121, 0.4) !important;
+    }
 
-body {
-  background: var(--bg);
-  color: var(--text-primary);
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0 1rem;
-}
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0 1rem;
+    }
 
-form {
-  background: var(--surface);
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  max-width: 480px;
-  margin: 2rem auto;
-}
+    form {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      max-width: 480px;
+      margin: 2rem auto;
+    }
 
-h1, h2 {
-  color: var(--accent);
-  text-align: center;
-  margin-bottom: 1rem;
-}
+    h1,
+    h2 {
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
 
-label {
-  display: block;
-  margin-top: 1rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
 
-input, select, textarea, button {
-  width: 100%;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-  font-size: 1rem;
-  color: var(--text-primary);
-  background: #2c2c2c;
-  border: 1px solid #333;
-  border-radius: 6px;
-  box-sizing: border-box;
-}
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: var(--text-primary);
+      background: #2c2c2c;
+      border: 1px solid #333;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
 
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.4);
-}
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.4);
+    }
 
-button {
-  background: var(--accent);
-  color: var(--bg);
-  border: none;
-  cursor: pointer;
-  margin-top: 1.5rem;
-  font-weight: bold;
-  transition: background 0.2s ease-in-out;
-}
+    button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      font-weight: bold;
+      transition: background 0.2s ease-in-out;
+    }
 
-button:hover {
-  background: #a56be0;
-}
+    button:hover {
+      background: #a56be0;
+    }
 
-/* fieldset {
+    /* fieldset {
   border: 1px solid #333;
   border-radius: 6px;
   padding: 1rem;
@@ -99,39 +105,41 @@ legend {
   padding: 0 0.5rem;
   font-weight: 600;
 } */
-.discipline-set {
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 1rem;
-  margin-top: 1.5rem;
-  background: #1e1e1e;
-}
+    .discipline-set {
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      background: #1e1e1e;
+    }
 
-.discipline-set legend {
-  color: var(--accent);
-  padding: 0 0.5rem;
-}
-.checkbox-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-}
+    .discipline-set legend {
+      color: var(--accent);
+      padding: 0 0.5rem;
+    }
 
-.checkbox-container label {
-  flex: 1 1 45%;
-  display: flex;
-  align-items: center;
-}
+    .checkbox-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
 
-@media (max-width: 400px) {
-  form {
-    padding: 1rem;
-    margin: 1rem auto;
-  }
-  .checkbox-container label {
-    flex: 1 1 100%;
-  }
-}
+    .checkbox-container label {
+      flex: 1 1 45%;
+      display: flex;
+      align-items: center;
+    }
+
+    @media (max-width: 400px) {
+      form {
+        padding: 1rem;
+        margin: 1rem auto;
+      }
+
+      .checkbox-container label {
+        flex: 1 1 100%;
+      }
+    }
   </style>
 </head>
 
@@ -165,14 +173,8 @@ legend {
 
     <!-- Teléfono de contacto  -->
     <label for="numTelefono">Teléfono</label>
-    <input type="text" 
-      id="numTelefono" 
-      name="numTelefono" 
-      placeholder="Teléfono a 10 dígitos" 
-      required
-      pattern="\d{10}"
-      maxlength="10"
-      title="Debe contener exactamente 10 dígitos numéricos">
+    <input type="text" id="numTelefono" name="numTelefono" placeholder="Teléfono a 10 dígitos" required pattern="\d{10}"
+      maxlength="10" title="Debe contener exactamente 10 dígitos numéricos">
 
     <!-- Correo electrónico -->
     <label for="email">Correo electrónico</label>
@@ -218,11 +220,13 @@ legend {
 
     <!-- Contacto de emergencia -->
     <label for="contanto_emergencia">Contacto de emergencia</label>
-    <input type="text" id="contanto_emergencia" name="contanto_emergencia"  required>
+    <input type="text" id="contanto_emergencia" name="contanto_emergencia" required>
 
     <!-- Teléfono emergencia -->
     <label for="telefono_emergencia">Teléfono de emergencia</label>
-    <input type="text" id="telefono_emergencia" name="telefono_emergencia" required>
+    <input type="text" id="telefono_emergencia" name="telefono_emergencia" placeholder="Teléfono a 10 dígitos" required
+      pattern="\d{10}" maxlength="10" title="Debe contener exactamente 10 dígitos numéricos">
+
 
     <!-- Enfermedades -->
     <label for="enfermedades">Enfermedades</label>
@@ -273,7 +277,7 @@ legend {
 
     <!-- Segundo Select (dinámico) -->
     <label for="subfuncion">Subfunción:</label>
-    <select id="subfuncion" name="subfuncion" disabled>
+    <select id="subfuncion" name="subfuncion" disabled required>
       <!-- <option value="">Selecciona una subfunción</option> -->
     </select>
     <!-- DATOS GENERALES DEL USUARIO -->
@@ -289,15 +293,7 @@ legend {
     <h3>Imagen Cargada:</h3>
     <div id="imagePreview" style="margin-top: 20px;"></div>
 
-    <!-- <img id="preview" src="" alt="Vista previa"> -->
-
-    <!-- <h3>Base64:</h3>
-      <textarea id="output" rows="6" cols="50" readonly></textarea> -->
     </div>
-
-
-    <!-- reCAPTCHA -->
-    <!-- <div class="g-recaptcha" data-sitekey="6LfEoOQqAAAAAON3jRE-cgIRwx7NVjlWmkX9ZWd4"></div> -->
 
     <!-- BOTÓN DE ENVÍO -->
     <button type="button" id="btn-enviar" onclick="enviarFormulario()">Enviar Registro</button>
@@ -307,7 +303,7 @@ legend {
 
   <!-- SCRIPT PARA MANEJAR EL FORMULARIO -->
   <script src="forms.js"></script>
-  
+
 </body>
 
 </html>
