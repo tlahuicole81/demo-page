@@ -4,7 +4,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 const URL_ACTIVA = 'https://script.google.com/macros/s/AKfycby2ncpiLXY6vWg2hOQ4XGYCLcvcJnesYaYY6037eXDlxiKl3UT8o8BkbsZd4fAD59YZsA/exec';
-
+const URL_ENVIO_REG = 'https://script.google.com/macros/s/AKfycbxoQJrl88WvrvYG7H0EJOb8WakZHZ0sPQ1zyDGJkBvYSZnyUBmrZRmy8uP_0utA6De8/exec'
 
 async function fetchDatosEventosYCompetencias() {
   try {
@@ -16,6 +16,8 @@ async function fetchDatosEventosYCompetencias() {
     if (data.success) {
       cargarFichas("eventos", data.eventos);
       cargarFichas("competencias", data.competencias);
+      // ¡Oculta el loader!
+      document.getElementById("loader").style.display = "none";
     } else {
       console.error("Error del servidor:", data.message || "Sin mensaje");
     }
@@ -28,7 +30,7 @@ function formatearFecha(fechaStr) {
   if (!fechaStr) return '';
   const [anio, mes, dia] = fechaStr.split("-");
   const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio",
-                 "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
   const nombreMes = meses[parseInt(mes, 10) - 1];
   return `${parseInt(dia, 10)} de ${nombreMes} de ${anio}`;
 }
@@ -49,7 +51,7 @@ function cargarFichas(idContenedor, lista) {
   lista.forEach(item => {
     const card = document.createElement("div");
     card.className = "card";
-
+    const esCompetencia = idContenedor === "competencias";
     card.innerHTML = `
       <h2>${item.Nombre}</h2>
       ${item.Fecha ? `<p><strong>Fecha:</strong> ${formatearFecha(item.Fecha)}</p>` : ''}
@@ -64,115 +66,139 @@ function cargarFichas(idContenedor, lista) {
       ${item.FechaLimite ? `<p><strong>Inscripción hasta:</strong> ${item.FechaLimite}</p>` : ''}
       ${item.DatosPago ? `<p><strong>Datos de pago:</strong> ${item.DatosPago}</p>` : ''}
       ${item.Imagen ? `<img src="${item.Imagen}" alt="Cartel">` : ''}
+      <button class="btn-registrar" onclick='abrirModal(${JSON.stringify(item)}, ${esCompetencia})'>Registrarme</button>
       <div class="contacto">
         ${item.AsociacionOrg ? `<p><strong>Asociación:</strong> ${item.AsociacionOrg}</p>` : ''}
         ${item.Telefono ? `<p><strong>Tel.:</strong> ${item.Telefono}</p>` : ''}
         ${item.Correo ? `<p><strong>Email:</strong> <a href="mailto:${item.Correo}">${item.Correo}</a></p>` : ''}
         ${item.WebPage ? `<p><strong>Web:</strong> <a href="${item.WebPage}" target="_blank">${item.WebPage}</a></p>` : ''}
       </div>
+      
     `;
 
     contenedor.appendChild(card);
   });
 }
 
-// function CargaLosEventos(losEventos) {
-//   const contenedor = document.getElementById("eventos");
-//   contenedor.innerHTML = ''; // limpia por si hay recarga
+// Modal
+const modal = document.getElementById("registroModal");
+const cerrarModal = document.getElementById("cerrarModal");
+cerrarModal.onclick = () => modal.style.display = "none";
+window.onclick = e => { if (e.target == modal) modal.style.display = "none"; }
+let tipoActual = "evento"; // o "competencia", lo definimos al abrirModal()
+let nombreCompEvento = "";
+let correoOrganizador = "";
+let asociacionOrganizador = "";
 
-//   losEventos.forEach(evento => {
-//     const card = document.createElement("div");
-//     card.className = "card";
 
-//     card.innerHTML = `
-//       <h2>${evento.Nombre}</h2>
-//       <p><strong>Fechas:</strong> ${evento.FechaIni} – ${evento.FechaFin}</p>
-//       <p><strong>Duración:</strong> ${evento.Duracion}</p>
-//       <p><strong>Lugar:</strong> ${evento.Lugar}</p>
-//       <p><strong>Cuota:</strong> ${evento.Cuota}</p>
-//       <p><strong>Inscripción hasta:</strong> ${evento.FechaLimite}</p>
-//       ${evento.Imagen ? `<img src="${evento.Imagen}" alt="Cartel del evento">` : ''}
-//       <div class="contacto">
-//         <p><strong>Asociación:</strong> ${evento.AsociacionOrg}</p>
-//         <p><strong>Tel.:</strong> ${evento.Telefono}</p>
-//         <p><strong>Email:</strong> <a href="mailto:${evento.Correo}">${evento.Correo}</a></p>
-//         <p><strong>Web:</strong> <a href="${evento.WebPage}" target="_blank">${evento.WebPage}</a></p>
-//       </div>
-//     `;
-//     contenedor.appendChild(card);
-//   });
-// }
+function abrirModal(data, esCompetencia) {
+  nombreCompEvento = data.Nombre; // Almacenamos el nombre de la competencia o evento
+  correoOrganizador = data.CorreoOrg;
+  asociacionOrganizador = data.AsociacionOrg;
 
-// function CargaCompetencias(lasCompetencias) {
-//   const contenedor = document.getElementById("eventos");
-//   contenedor.innerHTML = ''; // limpia por si hay recarga
+  tipoActual = esCompetencia ? "competencia" : "evento";
 
-//   lasCompetencias.forEach(competencia => {
-//     const card = document.createElement("div");
-//     card.className = "card";
+  const campoTalla = document.getElementById("tallaPlayera");
+  const _estatura = document.getElementById("estatura");
+  if (esCompetencia){
+    campoTalla.required = true;
+    _estatura.required = true;
+  } else {
+    campoTalla.required = false;
+    _estatura.required = false;
+    campoTalla.value = "";
+    _estatura.value = "";
+  }
 
-//     card.innerHTML = `
-//       <h2>${competencia.Nombre}</h2>
-//       <p><strong>Fecha:</strong> ${competencia.Fecha}</p>
-//       <p><strong>Lugar:</strong> ${competencia.Lugar}</p>
-//       <p><strong>Costo:</strong> ${competencia.Costo}</p>
-//       <p><strong>Categoría:</strong> ${competencia.Categoria}</p>
-//       <p><strong>Subcategoría:</strong> ${competencia.Subcategoria}</p>
-//       ${competencia.Imagen ? `<img src="${competencia.Imagen}" alt="Cartel del evento">` : ''}
-//       <div class="contacto">
-//         <p><strong>Asociación:</strong> ${competencia.AsociacionOrg}</p>
-//         <p><strong>Tel.:</strong> ${competencia.Telefono}</p>
-//         <p><strong>Email:</strong> <a href="mailto:${competencia.Correo}">${competencia.Correo}</a></p>
-//         <p><strong>Web:</strong> <a href="${competencia.WebPage}" target="_blank">${competencia.WebPage}</a></p>
-//       </div>
-//     `;
-//     contenedor.appendChild(card);
-//   });
-// }
+  const info = `
+    <p><strong>Nombre:</strong> ${data.Nombre}</p>
+    ${data.Fecha ? `<p><strong>Fecha:</strong> ${formatearFecha(data.Fecha)}</p>` : ''}
+    ${data.Lugar ? `<p><strong>Lugar:</strong> ${data.Lugar}</p>` : ''}
+    ${data.Costo ? `<p><strong>Costo:</strong> ${formatearMoneda(data.Costo)}</p>` : ''}
+  `;
 
-/*
-function CargaLosEventos(losEventos) {
-  const contenedor = document.getElementById("eventos");
-  contenedor.innerHTML = ''; // limpia por si hay recarga
+  document.getElementById("modalTitulo").textContent = esCompetencia ? "Registro a competencia" : "Registro a evento";
+  document.getElementById("modalDatosEvento").innerHTML = info;
+  document.getElementById("seccionPlayera").style.display = esCompetencia ? "block" : "none";
+  document.getElementById("laEstatura").style.display = esCompetencia ? "block" : "none";
+  modal.style.display = "block";
+}
 
-  losEventos.forEach(evento => {
-    const card = document.createElement("div");
-    card.className = "card";
+// Listener del formulario (placeholder)
+document.getElementById("formularioRegistro").addEventListener("submit", async e => {
+  e.preventDefault();  
+  // UI: ocultar errores previos, mostrar spinner
+  const spinner = document.getElementById("spinnerEnvio");
+  const btn = document.getElementById("enviarRegistro");
+  spinner.style.display = "block";
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
 
-    card.innerHTML = `
-      <h2>${evento.Nombre}</h2>
-      <p><strong>Fechas:</strong> ${evento.FechaIni} – ${evento.FechaFin}</p>
-      <p><strong>Duración:</strong> ${evento.Duracion}</p>
-      <p><strong>Lugar:</strong> ${evento.Lugar}</p>
-      <p><strong>Cuota:</strong> ${evento.Cuota}</p>
-      <p><strong>Inscripción hasta:</strong> ${evento.FechaLimite}</p>
-      ${evento.Imagen ? `
-        <iframe src="${evento.Imagen}" allowfullscreen frameborder="0"></iframe>
-      ` : ''}
-      <div class="contacto">
-        <p><strong>Asociación:</strong> ${evento.AsociacionOrg}</p>
-        <p><strong>Tel.:</strong> ${evento.Telefono}</p>
-        <p><strong>Email:</strong> <a href="mailto:${evento.Correo}">${evento.Correo}</a></p>
-        <p><strong>Web:</strong> <a href="${evento.WebPage}" target="_blank">${evento.WebPage}</a></p>
-      </div>
-    `;
+  const nombre = document.getElementById("nombre").value.trim();
+  const id = document.getElementById("idParticipante").value.trim();
+  const emailUsuario = document.getElementById("correo").value.trim();
+  const archivo = document.getElementById("comprobante").files[0];
+  const talla = document.getElementById("tallaPlayera").value;
+  const estaturaPart = document.getElementById("estatura").value;
+  if (!nombre || !id || !archivo || (tipoActual === "competencia" && !talla && !estaturaPart)) {
+    alert("Por favor completa todos los campos.");
+    resetearFormulario();
+    return;
+  }
 
-    contenedor.appendChild(card);
+  try{
+    const base64 = await convertirArchivoABase64(archivo);
+    const payload = {
+      destino: tipoActual === "evento" ? "registroEvento" : "registroCompetencia",
+      nombreCompEvento,
+      correoOrganizador,
+      asociacionOrg: asociacionOrganizador,
+      nombre,
+      emailUsuario,
+      idParticipante: id,
+      talla: tipoActual === "competencia" ? talla : null,
+      estatura: tipoActual === "competencia" ? estaturaPart : null,
+      comprobante: base64
+    };
+    console.log(JSON.stringify(payload));
+    const response = await fetch(URL_ENVIO_REG, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+    console.log("Los datos recibidos: ", data);
+    if (data.success) {
+      alert("¡Registro enviado correctamente!");
+      document.getElementById("formularioRegistro").reset();
+      modal.style.display = "none";
+    } else {
+      alert("Error: " + (data.message || "no se pudo enviar."));
+    }
+
+  } catch (err) {
+    console.error("Error al enviar:", err);
+    alert("Ocurrió un error al enviar el registro.");
+  }
+
+  resetearFormulario();
+});
+
+
+// Función para convertir el archivo a base64
+function convertirArchivoABase64(archivo) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result); // esto ya es un data:image/jpeg;base64,...
+    reader.onerror = reject;
+    reader.readAsDataURL(archivo);
   });
 }
-*/
 
-// async function fecthDatosEventos() {
-//   try {
-//     const respuesta = await fetch(URL_ACTIVA);
-//     if (!respuesta.ok) {
-//       throw new Error(`Error en la solicitud: ${respuesta.status}`);
-//     }
-//     const datos = await respuesta.json();
-//     console.log("Datos recibidos:", datos);
-//     CargaLosEventos(datos.eventos);
-//     CargaCompetencias(datos.competencias);
-//   } catch (error) {
-//     console.error("Error al obtener datos:", error);
-//   }
-// }
+// Oculta spinner y reactiva botón
+function resetearFormulario() {
+  document.getElementById("spinnerEnvio").style.display = "none";
+  const btn = document.getElementById("enviarRegistro");
+  btn.disabled = false;
+  btn.textContent = "Enviar registro";
+}
