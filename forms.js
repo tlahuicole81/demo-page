@@ -3,25 +3,21 @@ function $(id) {
   return document.getElementById(id);
 }
 
-// Get value
 function GV(id) {
   const x = document.getElementById(id);
   return x.value;
 }
 
-// Limpia la entrada
 function CLi(id) {
   const x = $(id);
   x.value = '';
 }
 
-// Regresamos el value de los elementos
 function VL(id) {
   const x = $(id).value;
   return x;
 }
 
-// Arrays con las opciones disponibles:
 const estados = [
   "Aguascalientes", "Baja California", "Baja California Sur", "Campeche",
   "Chiapas", "Chihuahua", "Ciudad de México", "Coahuila", "Colima",
@@ -70,16 +66,14 @@ const funcion_serMed = [
 ];
 
 /* Variables GLOBALES */
-var laFuncion = "";
-var laSubFuncion = "";
-var base64String = "";
-var lasDisciplinas = "";
-var asociacionSelec = "";
-var clubSelec = "";
+let laFuncion = "";
+let laSubFuncion = "";
+let base64String = "";
+let lasDisciplinas = "";
+let asociacionSelec = "";
+let clubSelec = "";
 /* Fin de variables GLOBALES*/
 
-
-// Al cargar la página, generamos las opciones de los selects
 window.addEventListener('DOMContentLoaded', () => {
   fetchData();
   generarOpcionesSelect("genero", elGenero);
@@ -88,13 +82,9 @@ window.addEventListener('DOMContentLoaded', () => {
   generarCheckboxes();
   generarOpcionesSelect("tipoSangre", tipoSangre);
   generarOpcionesSelect("funcion", funcion);
-  //
-  //cargaDataTemporal();
   laFuncion = GV('funcion');
 });
 
-
-// Función para enviar una solicitud GET
 async function fetchData() {
   try {
     const respuesta = await fetch(URL_ACTIVA0);
@@ -104,9 +94,7 @@ async function fetchData() {
 
     const datos = await respuesta.json();
     console.log("Datos recibidos:", datos);
-    llenarSelectAsociaciones(datos);
-    //const _x = $('clubes');
-    //llenarSelectClubes(datos, _x);
+    llenarSelectAsociaciones(datos);    
   } catch (error) {
     console.error("Error al obtener datos:", error);
   }
@@ -135,9 +123,8 @@ function llenarSelectAsociaciones(clubes) {
   });
 }
 
-// Función para llenar el select de clubes
 function llenarSelectClubes(clubes, estado) {
-  asociacionSelec = clubes[estado].asociacion; // guardamos la Asociación
+  asociacionSelec = clubes[estado].asociacion;
   console.log("Asociación seleccionada: ", asociacionSelec);
   let selectClubes = $("clubes");
   selectClubes.innerHTML = '<option value="">Seleccione un club</option>'; // Limpiar antes de llenar  
@@ -167,18 +154,14 @@ function llenarSelectClubes(clubes, estado) {
   }
 }
 
-
-// Función para generar las opciones de un select a partir de un array
 function generarOpcionesSelect(selectId, opciones) {
   const selectElement = $(selectId);
 
-  // Añadir una opción inicial vacía
   const opcionVacia = document.createElement("option");
   opcionVacia.value = "";
   opcionVacia.textContent = "Selecciona una opción";
   selectElement.appendChild(opcionVacia);
 
-  // Generar las opciones
   opciones.forEach(opcion => {
     const optionElement = document.createElement("option");
     optionElement.value = opcion;
@@ -187,7 +170,6 @@ function generarOpcionesSelect(selectId, opciones) {
   });
 }
 
-// Función para generar los checkboxes para las Disciplinas
 function generarCheckboxes() {
   const container = $('checkboxesContainer');
   disciplinas.forEach(actividad => {
@@ -199,32 +181,7 @@ function generarCheckboxes() {
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(' ' + actividad));
     container.appendChild(label);
-    // container.appendChild(document.createElement('br'));
   });
-}
-
-
-/* Función TEMPORAL para cargar datos al formulario */
-function cargaDataTemporal() {
-  $('nombre').value = "Bartolo";
-  $('apellidoPaterno').value = "Rodriguez";
-  $('apellidoMaterno').value = "González";
-  $('email').value = "correo.ejemplo@hotmail.com";
-  $('curp').value = "YJUY15874AQ";
-  $('genero').value = "Femenino";
-  $('escolaridad').value = "Media superior";
-  $('estado').value = "Tlaxcala";
-  $('municipio').value = "Chiautempan";
-  $('colonia').value = "Centro";
-  $('calle_numero').value = "Peligro #7";
-  $('codigo_postal').value = "63587";
-  $('contanto_emergencia').value = "Florentino Saldivar";
-  $('telefono_emergencia').value = "2461235698";
-  $('enfermedades').value = "Psico";
-  $('alergias').value = "Ninguna";
-  $('tipoSangre').value = "O-";
-  $('funcion').value = "Deportista";
-  $('subfuncion').value = ""
 }
 
 function limpiaCampos() {
@@ -257,34 +214,29 @@ function limpiaCampos() {
 
 document.getElementById('funcion').addEventListener('change', function () {
   const funcionSeleccionada = GV('funcion');
+  laFuncion = funcionSeleccionada;
   const sub = $('subfuncion');
+  sub.innerHTML = "";
+  laSubFuncion = ""; // Limpiamos
+  let prueba;
   switch (funcionSeleccionada) {
     case 'Personal técnico':
-      sub.innerHTML = "";
-      generarOpcionesSelect("subfuncion", funcion_personalTec);
-      sub.disabled = false;
+      prueba = funcion_personalTec;      
       break;
     case 'Consejo directivo':
-      sub.innerHTML = "";
-      generarOpcionesSelect("subfuncion", funcion_consejo);
-      sub.disabled = false;
+      prueba = funcion_consejo;      
       break;
     case 'Servicio médico':
-      sub.innerHTML = "";
-      generarOpcionesSelect("subfuncion", funcion_serMed);
-      sub.disabled = false;
+      prueba = funcion_serMed;      
       break;
     default:
-      sub.innerHTML = "";
+      document.getElementById('subfuncion').classList.remove('error');
       sub.disabled = true;
-      laSubFuncion = ""; // Limpiamos        
+      return;
   }
-  laFuncion = funcionSeleccionada;
-});
-
-document.getElementById('subfuncion').addEventListener('change', function () {
-  laSubFuncion = GV('subfuncion');
-  console.log(laFuncion + " -> " + laSubFuncion);
+  sub.disabled = false;
+  generarOpcionesSelect("subfuncion", prueba);
+  sub.classList.add('error');
 });
 
 
@@ -344,13 +296,8 @@ function abrirPathImg() {
 fileInput.addEventListener("change", function (event) {
   console.log("Versión 1");
   // Obtener el archivo seleccionado
-  const file = event.target.files[0];
-  //console.log("Revisando el input de la imagen");
-  // Verificar si se seleccionó un archivo
-  if (file) {
-    console.log("Sí hay imagen");
-    //const output = $('output');
-    //output.value = "";
+  const file = event.target.files[0];  
+  if (file) {    
     const maxSize = 2 * 1024 * 1024; // 2 MB
     if (file.size > maxSize) {
       alert("El archivo es demasiado grande. El tamaño máximo permitido es 2 MB.");
@@ -368,9 +315,6 @@ fileInput.addEventListener("change", function (event) {
         reader.onload = function (event) {
           console.log("Acá poner función a redimensión");
           base64String = event.target.result;
-          //output.value = base64String;
-          //console.log(base64String);  // <----
-          //preview.src = base64String; // Mostrar la imagen cargada
         };
         reader.readAsDataURL(file);
       } else {
@@ -416,17 +360,13 @@ function revisaBMP(file) {
   reader.readAsDataURL(file);
 }
 
-// fmdmye@gmail.com   -- MontaNismo2025  -- fedMontana
-
-// Función para guardar la selección de las Disciplinas
 function guardarDisciplina() {
   const checkboxes = document.querySelectorAll('input[name="actividad"]:checked');
   const actividadesSeleccionadas = [];
   checkboxes.forEach(checkbox => {
     actividadesSeleccionadas.push(checkbox.value);
   });
-  lasDisciplinas = actividadesSeleccionadas.join(', ');
-  //console.log("Disciplinas seleccionadaS: " + resultado);  
+  lasDisciplinas = actividadesSeleccionadas.join(', ');  
 }
 
 function enviarPost(jsonData) {
@@ -434,11 +374,6 @@ function enviarPost(jsonData) {
   const _btImg = $('btn-img');
   _btImg.disabled = true;
 
-  //contentTypeHeader = 'application/json; charset=utf-8';  // parece que este no
-  //contentTypeHeader = 'text/plain;charset=utf-8'; // este parece que sí
-  //contentTypeHeader = 'application/json'; este no
-
-  // Configurar el objeto de headers usando el tipo de contenido
   fetch(URL_ACTIVA0, {
     method: 'POST',
     body: jsonData,
@@ -484,16 +419,14 @@ function verificarCampos() {
     // Resaltamos el fieldset
     document.querySelector('fieldset').classList.add('error');
     todosCompletos = false;
-    //alert("Selecciona al menos una disciplina");
-    //return false;
   }
   const frm = $('registroForm');  // Obtener referencias al formulario y al botón de envío
   const requeridos = frm.querySelectorAll("[required]");
 
   requeridos.forEach(campo => {
     // Si es el teléfono, chequeamos 10 dígitos explícitamente
-    if (campo.id === 'numTelefono') {
-      console.log("Revisando teléfono....")
+    if (campo.id === 'numTelefono' || campo.id === 'telefono_emergencia') {
+      console.log("Revisando teléfonos....")
       const soloDigitos = campo.value.replace(/\D/g, '');
       if (!/^\d{10}$/.test(soloDigitos)) {
         campo.classList.add('error');
@@ -501,14 +434,23 @@ function verificarCampos() {
       }
     }
     else if (campo.id === "clubes") {
-      // Cuando estemos en clubes se verifica
+      // Cuando se llegue a clubes se debe verificar la asociación
       const cAs = GV('asociacion');
-      console.log("El valor en asociación es: [", cAs, "]");
-      if (cAs === "-") {
-        console.log("No hay que verificar clubes");
-      } else {
+      if (cAs !== "-") {
         // Si el valor seleccionado es diferente a "No asociación"
         // entonces sí se debe verificar el campo "clubes"
+        if (!campo.value.trim() || !campo.checkValidity()) {
+          campo.classList.add('error');
+          todosCompletos = false;
+        }
+      }
+    }
+    else if (campo.id === "subfuncion") {
+      // Al igual que clubes, está ligado estrechamente con otro control
+      const fn = GV('funcion');
+      if (fn === 'Personal técnico' || fn === 'Consejo directivo' || fn === 'Servicio médico') {
+        // Si función tiene el valor de estos campos entonces sí es necesario que
+        // en subfunción tenga un valor.
         if (!campo.value.trim() || !campo.checkValidity()) {
           campo.classList.add('error');
           todosCompletos = false;
@@ -522,15 +464,33 @@ function verificarCampos() {
       //alert("Por favor verifica los datos ingresados.");
     }
   });
-  if (!todosCompletos) {
-    alert("Por favor verifica los datos ingresados (marcados en rojo).");
+  if (!todosCompletos || base64String === "") {
+    if (!todosCompletos) {
+      alert("Por favor verifica los datos ingresados (marcados en rojo).");
+      return false;
+    }
+    if (base64String === "") {
+      alert("Por favor carga una imagen");
+      return false;
+    }
   }
   return todosCompletos;
 }
 
+function checaCampos(campo) {
+  if (!campo.value.trim() || !campo.checkValidity()) {
+    campo.classList.add('error');
+    todosCompletos = false;
+  }
+}
+
 // Para todos los inputs y selects
 document.querySelectorAll('#registroForm input, #registroForm select').forEach(el => {
-  el.addEventListener('input', () => {    
+  el.addEventListener('input', () => {
+    if (el.id === 'subfuncion') {
+      laSubFuncion = el.value;
+      console.log(laFuncion + " -> " + laSubFuncion);
+    }
     el.classList.remove('error');
   });
 });
@@ -541,7 +501,6 @@ document.querySelectorAll('input[type="checkbox"][name="actividad"]').forEach(cb
     document.querySelector('fieldset').classList.remove('error');
   });
 });
-
 
 function enviarFormulario() {
   if (verificarCampos()) {
