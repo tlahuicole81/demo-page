@@ -191,6 +191,75 @@
       animation: spin 1s linear infinite;
       margin: auto;
     }
+
+    #formularioSeguro {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #formularioSeguro label {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #e0e0e0;
+    }
+
+    #formularioSeguro input {
+      margin-top: 4px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      font-size: 15px;
+    }
+
+    #formularioSeguro button {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #00bfff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #formularioSeguro button:hover {
+      background-color: #009acc;
+    }
+
+    #previewSeguro img {
+      display: block;
+      margin-top: 10px;
+      max-width: 100%;
+      border: 1px solid #555;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      max-width: 90%;
+      margin-left: -125px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 12px;
+      position: fixed;
+      z-index: 9999;
+      left: 50%;
+      bottom: 30px;
+      font-size: 15px;
+      opacity: 0;
+      transition: opacity 0.5s ease, bottom 0.5s ease;
+    }
+
+    .toast.show {
+      visibility: visible;
+      opacity: 1;
+      bottom: 50px;
+    }
   </style>
 </head>
 
@@ -207,7 +276,36 @@
 
     <h2 style="color:#00bfff;">Competencias</h2>
     <div id="competencias" class="cards-grid"></div>
+
+    <h2 style="color:#00bfff; margin-top:40px;">Comprobante de pago de seguro médico</h2>
+    <div id="seguroMedico" class="cards-grid">
+      <div class="card" style="max-width:500px; margin:auto;">
+        <form id="formularioSeguro">
+          <label for="nombreSeguro">Nombre del asociado:</label>
+          <input type="text" id="nombreSeguro" required>
+
+          <label for="idSeguro">ID o CURP:</label>
+          <input type="text" id="idSeguro" required>
+
+          <label for="emailSeguro">Correo electrónico:</label>
+          <input type="email" id="emailSeguro" required>
+
+          <label for="comprobanteSeguro">Comprobante de pago:</label>
+          <input type="file" id="comprobanteSeguro" accept="image/jpeg,image/png">
+          <div id="previewSeguro"></div>
+
+          <div id="spinnerSeguro" style="display:none; text-align:center; margin-top:10px;">
+            <div class="spinner mini"></div>
+            <p>Enviando comprobante...</p>
+          </div>
+
+          <button type="submit" id="enviarSeguro">Enviar comprobante</button>
+          <br>
+        </form>
+      </div>
+    </div>
   </div>
+
 
   <!-- Modal de registro -->
   <div id="registroModal" class="modal">
@@ -227,10 +325,11 @@
         <input type="text" id="correo" required>
 
         <label for="comprobante">Comprobante de pago:</label>
-        <input type="file" id="comprobante" accept="image/*" required>
+        <input type="file" id="comprobante" accept="image/jpeg,image/png">
+        <div id="previewCompEvento"></div>
 
         <div id="laEstatura" style="display:none;">
-          <label for="estatura">Estatura del competidor:</label>
+          <label for="estatura">Estatura del competidor (centímetros):</label>
           <input type="text" id="estatura" required>
         </div>
 
@@ -244,7 +343,7 @@
             <option value="Extragrande">Extragrande</option>
           </select>
         </div>
-
+        <br>
         <button type="submit" id="enviarRegistro">Enviar registro</button>
         <div id="spinnerEnvio" style="display:none; text-align:center; margin-top:15px;">
           <div class="spinner mini"></div>
@@ -254,6 +353,7 @@
     </div>
   </div>
 
+  <div id="toast" class="toast"></div>
   <script src="eventos.js"></script>
 </body>
 
