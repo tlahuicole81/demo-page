@@ -1,9 +1,10 @@
-
 window.addEventListener('DOMContentLoaded', () => {
   fetchDatosEventosYCompetencias();
 });
 
+// GAS - (doGet) Acceso-Login. [Nombre de archivo: Acceso]
 const URL_ACTIVA = 'https://script.google.com/macros/s/AKfycby2ncpiLXY6vWg2hOQ4XGYCLcvcJnesYaYY6037eXDlxiKl3UT8o8BkbsZd4fAD59YZsA/exec';
+// GAS - (doPOST) Ingreso-Datos. [Nombre de archivo: Asociados]
 const URL_ENVIO_REG = 'https://script.google.com/macros/s/AKfycbxoQJrl88WvrvYG7H0EJOb8WakZHZ0sPQ1zyDGJkBvYSZnyUBmrZRmy8uP_0utA6De8/exec'
 
 async function fetchDatosEventosYCompetencias() {
@@ -184,16 +185,43 @@ document.getElementById("formularioRegistro").addEventListener("submit", async e
   resetearFormulario();
 });
 
-
-// Función para convertir el archivo a base64
 function convertirArchivoABase64(archivo) {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result); // esto ya es un data:image/jpeg;base64,...
-    reader.onerror = reject;
-    reader.readAsDataURL(archivo);
+    if (archivo.size <= 220 * 1024) {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(archivo);
+    } else {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        img.onload = () => {
+          // Creamos canvas
+          const canvas = document.createElement('canvas');
+          const maxAncho = 800; // px
+          const escala = maxAncho / img.width;
+          canvas.width = Math.min(maxAncho, img.width);
+          canvas.height = img.height * escala;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Obtenemos base64 a calidad 0.6 (JPEG)
+          const base64 = canvas.toDataURL('image/jpeg', 0.6);
+          resolve(base64);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+
+      reader.onerror = reject;
+      reader.readAsDataURL(archivo);
+    }
   });
 }
+
 
 // Oculta spinner y reactiva botón
 function resetearFormulario() {
