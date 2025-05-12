@@ -6,7 +6,7 @@
    (doGet)
   - Recupera la información de los eventos y competencias
  */
-const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbybOHXmWn9xUlQvV52aaxePeVIzZEfj8nBX_4Z6PZJJSbDRbwICSA_sjoI82zpGaDFhjw/exec"; //prueba19
+const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbwLQ7S55PLh3zDJUSwtGJerdy-nwXcSv7BAVUJdioa9jwssslcQO-qNXtP590WVzmV89A/exec";
 
 
 // GAS - (doGet) Acceso-Login. [Nombre de archivo: Acceso]
