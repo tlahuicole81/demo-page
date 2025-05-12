@@ -140,6 +140,40 @@ legend {
         flex: 1 1 100%;
       }
     }
+
+    #imagePreview img {
+      display: block;
+      margin-top: 10px;
+      max-width: 100%;
+      border: 1px solid #555;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      max-width: 90%;
+      margin-left: -125px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 12px;
+      position: fixed;
+      z-index: 9999;
+      left: 50%;
+      bottom: 30px;
+      font-size: 15px;
+      opacity: 0;
+      transition: opacity 0.5s ease, bottom 0.5s ease;
+    }
+
+    .toast.show {
+      visibility: visible;
+      opacity: 1;
+      bottom: 50px;
+    }
   </style>
 </head>
 
@@ -151,125 +185,93 @@ legend {
     <!-- INFORMACIÓN DEL ASOCIADO -->
     <h2>Información del Asociado</h2>
 
-    <!-- ID -->
-    <!-- <label for="idAsociado">ID del Asociado</label>
-    <input type="text" id="idAsociado" name="idAsociado" placeholder="Ej. 12345" required> -->
-
-    <!-- Nombre -->
-    <label for="nombre">Nombre</label>
-    <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
-
-    <!-- Apellido Paterno -->
-    <label for="apellidoPaterno">Apellido Paterno</label>
-    <input type="text" id="apellidoPaterno" name="apellidoPaterno" placeholder="Apellido paterno" required>
-
-    <!-- Apellido Materno -->
-    <label for="apellidoMaterno">Apellido Materno</label>
-    <input type="text" id="apellidoMaterno" name="apellidoMaterno" placeholder="Apellido materno" required>
-
-    <!-- Fecha de nacimiento -->
-    <label for="fechaNacimiento">Fecha de Nacimiento</label>
-    <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
-
-    <!-- Teléfono de contacto  -->
-    <label for="numTelefono">Teléfono</label>
-    <input type="text" id="numTelefono" name="numTelefono" placeholder="Teléfono a 10 dígitos" required pattern="\d{10}"
-      maxlength="10" title="Debe contener exactamente 10 dígitos numéricos">
-
-    <!-- Correo electrónico -->
-    <label for="email">Correo electrónico</label>
-    <input type="email" id="email" name="email" placeholder="" required>
-
-    <!-- CURP -->
-    <label for="curp">CURP</label>
-    <input type="text" id="curp" name="curp" placeholder="" required>
-
-    <!-- Género -->
-    <label for="genero">Género</label>
-    <select id="genero" name="genero" required>
-      <!-- Las opciones se generarán dinámicamente con JavaScript -->
-    </select>
-
-    <!-- Escolaridad -->
-    <label for="escolaridad">Escolaridad</label>
-    <select id="escolaridad" name="escolaridad" required>
-      <!-- Las opciones se generarán dinámicamente con JavaScript -->
-    </select>
-
-    <!-- Estado -->
-    <label for="estado">Estado</label>
-    <select id="estado" name="estado" placeholder="Estado de la república" required>
-      <!-- Las opciones se generarán dinámicamente con JavaScript -->
-    </select>
-
-    <!-- Municipio -->
-    <label for="municipio">Municipio</label>
-    <input type="text" id="municipio" name="municipio" placeholder="Municipio" required>
-
-    <!-- Colonia -->
-    <label for="colonia">Colonia</label>
-    <input type="text" id="colonia" name="colonia" placeholder="Colonia" required>
-
-    <!-- Calle y número -->
-    <label for="calle_numero">Calle y número</label>
-    <input type="text" id="calle_numero" name="calle_numero" placeholder="Calle y número" required>
-
-    <!-- Código Postal -->
-    <label for="codigo_postal">Código postal</label>
-    <input type="text" id="codigo_postal" name="codigo_postal" placeholder="Código postal" required>
-
-    <!-- Contacto de emergencia -->
-    <label for="contanto_emergencia">Contacto de emergencia</label>
-    <input type="text" id="contanto_emergencia" name="contanto_emergencia" required>
-
-    <!-- Teléfono emergencia -->
-    <label for="telefono_emergencia">Teléfono de emergencia</label>
-    <input type="text" id="telefono_emergencia" name="telefono_emergencia" placeholder="Teléfono a 10 dígitos" required
-      pattern="\d{10}" maxlength="10" title="Debe contener exactamente 10 dígitos numéricos">
-
-
-    <!-- Enfermedades -->
-    <label for="enfermedades">Enfermedades</label>
-    <input type="text" id="enfermedades" name="enfermedades" placeholder="Ninguna">
-
-    <!-- Alergias -->
-    <label for="alergias">Alergias</label>
-    <input type="text" id="alergias" name="alergias" placeholder="Ninguna">
-
-    <!-- Tipo de sangre -->
-    <label for="tipoSangre">Tipo de sangre</label>
-    <select id="tipoSangre" name="tipoSangre" required>
-      <!-- Las opciones se generarán dinámicamente con JavaScript -->
-    </select>
-
-    <!-- Asociación -->
-    <label for="asociacion">Asociación</label>
-    <select id="asociacion" name="asociacion" required>
-
-    </select>
-    <!-- <input type="text" id="asociacion" name="asociacion" required>  -->
-
-    <!-- Club -->
-    <label for="clubes">Club</label>
-    <select id="clubes" name="clubes" required>
-
-    </select>
-    <br>
-    <br>
-
-    <!-- Disciplina -->
     <fieldset class="discipline-set">
-      <legend>Disciplinas</legend>
-      <div id="checkboxesContainer" class="checkbox-container">
-        <!-- Los checkboxes se generarán aquí dinámicamente -->
-      </div>
+      <legend>Datos Generales</legend>
+      <!-- Nombre -->
+      <label for="nombre">Nombre</label>
+      <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+
+      <!-- Apellido Paterno -->
+      <label for="apellidoPaterno">Apellido Paterno</label>
+      <input type="text" id="apellidoPaterno" name="apellidoPaterno" placeholder="Apellido paterno" required>
+
+      <!-- Apellido Materno -->
+      <label for="apellidoMaterno">Apellido Materno</label>
+      <input type="text" id="apellidoMaterno" name="apellidoMaterno" placeholder="Apellido materno" required>
+
+      <!-- Fecha de nacimiento -->
+      <label for="fechaNacimiento">Fecha de Nacimiento</label>
+      <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+      <!-- CURP -->
+      <label for="curp">CURP</label>
+      <input type="text" id="curp" name="curp" placeholder="" required>
+
+      <!-- Género -->
+      <label for="genero">Género</label>
+      <select id="genero" name="genero" required>
+        <!-- Las opciones se generarán dinámicamente con JavaScript -->
+      </select>
+
+      <!-- Escolaridad -->
+      <label for="escolaridad">Escolaridad</label>
+      <select id="escolaridad" name="escolaridad" required>
+        <!-- Las opciones se generarán dinámicamente con JavaScript -->
+      </select>
     </fieldset>
-    <br>
-    <p id="resultado"></p>
-    <!-- Las opciones se generarán dinámicamente con JavaScript -->
 
+    <fieldset class="discipline-set">
+      <legend>Datos de contacto</legend>
+      <!-- Teléfono de contacto  -->
+      <label for="numTelefono">Teléfono</label>
+      <input type="text" id="numTelefono" name="numTelefono" placeholder="Teléfono a 10 dígitos" required
+        pattern="\d{10}" maxlength="10" title="Debe contener exactamente 10 dígitos numéricos">
 
-    <!-- Función -->
+      <!-- Correo electrónico -->
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" name="email" placeholder="" required>
+    </fieldset>
+
+    <fieldset class="discipline-set">
+      <legend>Datos médicos</legend>
+      <!-- Enfermedades -->
+      <label for="enfermedades">Enfermedades</label>
+      <input type="text" id="enfermedades" name="enfermedades" placeholder="Ninguna">
+
+      <!-- Alergias -->
+      <label for="alergias">Alergias</label>
+      <input type="text" id="alergias" name="alergias" placeholder="Ninguna">
+
+      <!-- Tipo de sangre -->
+      <label for="tipoSangre">Tipo de sangre</label>
+      <select id="tipoSangre" name="tipoSangre" required>
+        <!-- Las opciones se generarán dinámicamente con JavaScript -->
+      </select>
+
+      <!-- Contacto de emergencia -->
+      <label for="contanto_emergencia">Contacto de emergencia</label>
+      <input type="text" id="contanto_emergencia" name="contanto_emergencia" required>
+
+      <!-- Teléfono emergencia -->
+      <label for="telefono_emergencia">Teléfono de emergencia</label>
+      <input type="text" id="telefono_emergencia" name="telefono_emergencia" placeholder="Teléfono a 10 dígitos"
+        required pattern="\d{10}" maxlength="10" title="Debe contener exactamente 10 dígitos numéricos">
+
+    </fieldset>
+
+    <fieldset class="discipline-set">
+      <legend>Afiliación</legend>
+      <!-- Asociación -->
+      <label for="asociacion">Asociación</label>
+      <select id="asociacion" name="asociacion" required>
+      </select>
+      <!-- <input type="text" id="asociacion" name="asociacion" required>  -->
+
+      <!-- Club -->
+      <label for="clubes">Club</label>
+      <select id="clubes" name="clubes" required>
+      </select>
+
+        <!-- Función -->
     <label for="funcion">Función</label>
     <select id="funcion" name="funcion" required>
       <!-- Las opciones se generarán dinámicamente con JavaScript -->
@@ -280,28 +282,64 @@ legend {
     <select id="subfuncion" name="subfuncion" disabled required>
       <!-- <option value="">Selecciona una subfunción</option> -->
     </select>
+
+    </fieldset>
+
+    <fieldset id="direccionINE" class="discipline-set" style="display: none;">
+      <legend id="laDirec">Con base en tu INE</legend>
+
+      <!-- Estado -->
+      <label for="estado">Estado</label>
+      <select id="estado" name="estado" placeholder="Estado de la república" required>
+        <!-- Las opciones se generarán dinámicamente con JavaScript -->
+      </select>
+
+      <!-- Municipio -->
+      <label for="municipio">Municipio</label>
+      <input type="text" id="municipio" name="municipio" placeholder="Municipio" required>
+
+      <!-- Colonia -->
+      <label for="colonia">Colonia</label>
+      <input type="text" id="colonia" name="colonia" placeholder="Colonia" required>
+
+      <!-- Calle y número -->
+      <label for="calle_numero">Calle y número</label>
+      <input type="text" id="calle_numero" name="calle_numero" placeholder="Calle y número" required>
+
+      <!-- Código Postal -->
+      <label for="codigo_postal">Código postal</label>
+      <input type="text" id="codigo_postal" name="codigo_postal" placeholder="Código postal" required>
+    </fieldset>
+    <br>    
+
+    <!-- Disciplina -->
+    <fieldset id="lasDisciplinas" class="discipline-set">
+      <legend>Disciplinas</legend>
+      <div id="checkboxesContainer" class="checkbox-container">
+        <!-- Los checkboxes se generarán aquí dinámicamente -->
+      </div>
+    </fieldset>
+
+    <br>
+
     <!-- DATOS GENERALES DEL USUARIO -->
 
-    <!-- SUBIDA DE ARCHIVOS -->
-
+    <!-- SUBIDA DE IMAGEN -->
     <h2>Cargar fotografía para credencial:</h2>
-    <input type="file" id="fileInput" accept="image/*">
-    <!-- <button onclick="convertToBase64()">Convertir</button> -->
-    <button type="button" id="btn-img" onclick="abrirPathImg()">Abrir</button>
-
+    <input type="file" id="fileInput" accept="image/jpeg,image/png" required>
     <!-- Área para mostrar la imagen seleccionada -->
     <h3>Imagen Cargada:</h3>
-    <div id="imagePreview" style="margin-top: 20px;"></div>
+    <div id="imagePreview"></div>
 
-    </div>
+    <!-- reCAPTCHA -->
+    <!-- <div class="g-recaptcha" data-sitekey="6LfEoOQqAAAAAON3jRE-cgIRwx7NVjlWmkX9ZWd4"></div> -->
 
     <!-- BOTÓN DE ENVÍO -->
     <button type="button" id="btn-enviar" onclick="enviarFormulario()">Enviar Registro</button>
-    </div>
-
   </form>
-
+  <div id="toast" class="toast"></div>
   <!-- SCRIPT PARA MANEJAR EL FORMULARIO -->
+  <script src="utilidades.js"></script>
   <script src="forms.js"></script>
 
 </body>
