@@ -165,6 +165,28 @@
       background-color: #009acc;
     }
 
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-content .form-scrollable {
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .modal-content button[type="submit"] {
+      position: sticky;
+      bottom: 0;
+      background-color: #00bfff;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: auto;
+    }
+
     #loader {
       position: fixed;
       top: 0;
@@ -340,6 +362,7 @@
       </div>
     </div>
   </div>
+
   <!-- Modal de registro -->
   <div id="registroModal" class="modal">
     <div class="modal-content">
@@ -348,36 +371,40 @@
       <div id="modalDatosEvento"></div>
 
       <form id="formularioRegistro">
-        <label for="nombre">Nombre completo:</label>
-        <input type="text" id="nombre" required>
+        <div class="form-scrollable">
+          <label for="nombre">Nombre completo:</label>
+          <input type="text" id="nombre" required>
 
-        <label for="idParticipante">ID o CURP:</label>
-        <input type="text" id="idParticipante" required>
+          <label for="idParticipante">ID o CURP:</label>
+          <input type="text" id="idParticipante" required>
 
-        <label for="correo">E-mail:</label>
-        <input type="text" id="correo" required>
+          <label for="correo">E-mail:</label>
+          <input type="text" id="correo" required>
 
-        <label for="comprobante">Comprobante de pago:</label>
-        <input type="file" id="comprobante" accept="image/jpeg,image/png">
-        <div id="previewCompEvento"></div>
+          <label for="comprobante">Comprobante de pago:</label>
+          <input type="file" id="comprobante" accept="image/jpeg,image/png">
+          <div id="previewCompEvento"></div>
 
-        <div id="laEstatura" style="display:none;">
-          <label for="estatura">Estatura del competidor (centímetros):</label>
-          <input type="text" id="estatura" required>
+          <div id="laEstatura" style="display:none;">
+            <label for="estatura">Estatura del competidor (centímetros):</label>
+            <input type="text" id="estatura" required>
+          </div>
+
+          <div id="seccionPlayera" style="display:none;">
+            <label for="tallaPlayera">Talla de playera:</label>
+            <select id="tallaPlayera">
+              <option value="">Selecciona una talla</option>
+              <option value="Chica">Chica</option>
+              <option value="Mediana">Mediana</option>
+              <option value="Grande">Grande</option>
+              <option value="Extragrande">Extragrande</option>
+            </select>
+          </div>
         </div>
 
-        <div id="seccionPlayera" style="display:none;">
-          <label for="tallaPlayera">Talla de playera:</label>
-          <select id="tallaPlayera">
-            <option value="">Selecciona una talla</option>
-            <option value="Chica">Chica</option>
-            <option value="Mediana">Mediana</option>
-            <option value="Grande">Grande</option>
-            <option value="Extragrande">Extragrande</option>
-          </select>
-        </div>
-        <br>
+
         <button type="submit" id="enviarRegistro">Enviar registro</button>
+
         <div id="spinnerEnvio" style="display:none; text-align:center; margin-top:15px;">
           <div class="spinner mini"></div>
           <p>Enviando registro...</p>
