@@ -1,167 +1,138 @@
-const URL_ACTIVA0 = "https://script.google.com/macros/s/AKfycbzw644S7yCml9Ui_AZvu29swKpUeshyqK535fKr-WsqPGq6b5_8e5bZPyj-6JB3lkMxlw/exec"; // 01
-function $(id) {
-  return document.getElementById(id);
-}
-
-function GV(id) {
-  const x = document.getElementById(id);
-  return x.value;
-}
-
-function CLi(id) {
-  const x = $(id);
-  x.value = '';
-}
-
-function VL(id) {
-  const x = $(id).value;
-  return x;
-}
-
-const estados = [
-  "Aguascalientes", "Baja California", "Baja California Sur", "Campeche",
-  "Chiapas", "Chihuahua", "Ciudad de México", "Coahuila", "Colima",
-  "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México (Edo.)",
-  "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla",
-  "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora",
-  "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
-];
-
-const disciplinas = [
-  "Alta Montaña",
-  "Barranquismo",
-  "Escalada Deportiva",
-  "Escalada en roca",
-  "Espeleología",
-  "Senderismo",
-  "Vía Ferrata",
-  "Escalada en hielo"
-];
-
-const tipoSangre = [
-  "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"
-];
-
-const elGenero = ["Masculino", "Femenino"];
-
-const laEscolaridad = [
-  "Primaria", "Secundaria", "Media superior", "Superior"
-];
-
-const funcion = [
-  "Deportista", "Entrenador", "Fisiatra", "Juez/Árbitro", "Personal administrativo", "Prensa",
-  "Voluntariado", "Personal técnico", "Consejo directivo", "Servicio médico"
-];
-
-const funcion_personalTec = [
-  "Equipador de rutas", "Equipador de barrancos", "Registro de senderos", "Medio ambiente", "Acceso", "Seguridad", "Armador de bloques"
-];
-const funcion_consejo = [
-  "Presidente club", "Vicepresidente club", "Secretario club", "Presidente asociación", "Vicepresidente asociación",
-  "Tesorero asociación", "Secretario asociación", "Vocal directivo asociación", "Vocal deportivo asociacón", "Comisario asociación", "Representante jurídico asociación"
-];
-
-const funcion_serMed = [
-  "Médico", "Psicólogo", "Nutriólogo"
-];
-
-/* Variables GLOBALES */
 let laFuncion = "";
 let laSubFuncion = "";
-let base64String = "";
+
 let lasDisciplinas = "";
 let asociacionSelec = "";
 let clubSelec = "";
+
+let base64Comprobante = null;
+let imagenProcesadaOK = false;
+
+let estadosDisponibles = [];
+const estadosSet = new Set(estados); // convierte array a conjunto para comparación rápida
 /* Fin de variables GLOBALES*/
 
+// Al cargar la página, generamos las opciones de los selects
 window.addEventListener('DOMContentLoaded', () => {
   fetchData();
+  validarArchivoImagen("fileInput", "imagePreview");
   generarOpcionesSelect("genero", elGenero);
-  generarOpcionesSelect("escolaridad", laEscolaridad);
-  generarOpcionesSelect("estado", estados);
+  generarOpcionesSelect("escolaridad", la_Escolaridad);
+  //generarOpcionesSelect("estado", estados);
   generarCheckboxes();
   generarOpcionesSelect("tipoSangre", tipoSangre);
-  generarOpcionesSelect("funcion", funcion);
-  laFuncion = GV('funcion');
+  generarOpcionesSelect("funcion", funcion);  
 });
 
+// Función para enviar una solicitud GET
 async function fetchData() {
   try {
     const respuesta = await fetch(URL_ACTIVA0);
     if (!respuesta.ok) {
       throw new Error(`Error en la solicitud: ${respuesta.status}`);
     }
-
     const datos = await respuesta.json();
-    console.log("Datos recibidos:", datos);
-    llenarSelectAsociaciones(datos);    
+    console.log("Datos recibidos:", datos);    
+    mostrarToast("Datos recibidos.");
+    llenarSelectAsociaciones(datos);
   } catch (error) {
     console.error("Error al obtener datos:", error);
   }
 }
 
-function llenarSelectAsociaciones(clubes) {
+function llenarSelectAsociaciones(losDatos) {
+  estadosDisponibles = estados;
   let selectAsociaciones = $("asociacion");
-  let cont = true;
-  let _estado1 = "";
-  for (let estado in clubes) {
+  selectAsociaciones.innerHTML = '<option value="">Seleccione una asociación</option>';
+  for (let estado in losDatos) {
     let option = document.createElement("option");
-    if (cont === true) {
-      cont = false;
-      _estado1 = estado;
+    option.value = estado; // Usamos el nombre del estado como valor    
+    if (estadosSet.has(estado)) {
+      // Si está el estado de esta asociación en el array de estados
+      // entonces lo removemos del array copia de estados.
+      const indice = estadosDisponibles.indexOf(estado);
+      estadosDisponibles.splice(indice, 1);
     }
-    option.value = estado; // Usamos el nombre del estado como valor
-    option.textContent = `${estado} - ${clubes[estado].asociacion}`;
+    option.textContent = `${estado} - ${losDatos[estado].asociacion}`;
     selectAsociaciones.appendChild(option);
   }
-  llenarSelectClubes(clubes, _estado1);
+
+  let selectClubes = $("clubes");  
   // Escuchar cambios en el select de asociaciones
   selectAsociaciones.addEventListener("change", function () {
-    let estadoSeleccionado = this.value;
-    console.log("Ehhhh  " + this.value);
-    llenarSelectClubes(clubes, estadoSeleccionado);
+    const seleccion = $("asociacion").value.trim().split(" - ")[0]; // extrae el nombre del estado
+    const direccionFieldset = $("direccionINE");
+    const selectEstado = $("estado");
+    //console.log("El estado de la asociación es: [", seleccion, "]");
+    if (!seleccion) {      
+      // Se tiene que borrar los campos de clubes      
+      selectClubes.innerHTML = '<option value=""></option>';
+      asociacionSelec = "";
+      clubSelec = "";
+      // Borrar los estados del select <estados>      
+      selectEstado.disabled = false;
+      selectEstado.innerHTML = '<option value=""></option>';
+      //
+      direccionFieldset.style.display = "none";
+      return;
+    }
+    CLi('municipio');
+    CLi('codigo_postal');
+    direccionFieldset.style.display = "block";    
+    asociacionSelec = losDatos[seleccion].asociacion;
+    const dire = $('laDirec');    
+    //console.log("Probando la aso->; ", losDatos[seleccion].asociacion);
+    if (estadosSet.has(seleccion)) {
+      // Corresponde a un estado, bloquear y fijar estado      
+      selectEstado.innerHTML = `<option value="${seleccion}">${seleccion}</option>`;
+      selectEstado.value = seleccion;
+      selectEstado.disabled = true;
+      dire.innerText = "Dirección INE " + seleccion;
+      // De acuerdo al estado se filtran los clubes.
+      llenarSelectClubes(losDatos, seleccion);
+    } else {
+      selectClubes.innerHTML = "";
+      selectClubes.innerHTML = '<option value="Sin club">Sin club</option>';
+      clubSelec = "Sin clubes";
+      // Si NO corresponde a un estado, permitir seleccionar entre los estados faltantes      
+      selectEstado.disabled = false;
+      dire.innerText = "Dirección de tu INE";
+      generarOpcionesSelect("estado", estadosDisponibles);
+    }
   });
 }
 
-function llenarSelectClubes(clubes, estado) {
-  asociacionSelec = clubes[estado].asociacion;
-  console.log("Asociación seleccionada: ", asociacionSelec);
+// Función para llenar el select de clubes
+function llenarSelectClubes(losDatos, estado) {  
   let selectClubes = $("clubes");
-  selectClubes.innerHTML = '<option value="">Seleccione un club</option>'; // Limpiar antes de llenar  
-  var cambios = true;
-  if (estado && clubes[estado]) {
-    clubes[estado].clubes.forEach(club => {
-      if (club !== "Sin clubes") {
-        let option = document.createElement("option");
-        option.value = club;
-        option.textContent = club;
-        selectClubes.appendChild(option);
+  selectClubes.innerHTML = '<option value="">Seleccione un club</option>'; // Limpiar antes de llenar    
+  if (estado && losDatos[estado]) {
+    losDatos[estado].clubes.forEach(club => {
+      let option = document.createElement("option");
+      option.value = club;
+      option.textContent = club;
+      selectClubes.appendChild(option);
+    });
+  }
+  // Acá escuchamos cuando el usuario seleccione un club
+  selectClubes.addEventListener("change", function () {
+    clubSelec = this.value;
+    console.log("Club seleccionado: ", clubSelec);
+  });
 
-      } else {
-        console.log("No hay clubes");
-        selectClubes.innerHTML = '<option value="">Sin clubes</option>'; // Limpiamos
-        clubSelec = "Sin clubes";
-        cambios = false;
-      }
-    });
-  }
-  if (cambios === true) {
-    // Acá escuchamos cuando el usuario seleccione un club
-    selectClubes.addEventListener("change", function () {
-      clubSelec = this.value;
-      console.log("Club seleccionado: ", clubSelec);
-    });
-  }
 }
 
+// Función para generar las opciones de un select a partir de un array
 function generarOpcionesSelect(selectId, opciones) {
   const selectElement = $(selectId);
-
+  selectElement.innerHTML = "";
+  // Añadir una opción inicial vacía
   const opcionVacia = document.createElement("option");
   opcionVacia.value = "";
   opcionVacia.textContent = "Selecciona una opción";
   selectElement.appendChild(opcionVacia);
 
+  // Generar las opciones
   opciones.forEach(opcion => {
     const optionElement = document.createElement("option");
     optionElement.value = opcion;
@@ -170,6 +141,7 @@ function generarOpcionesSelect(selectId, opciones) {
   });
 }
 
+// Función para generar los checkboxes para las Disciplinas
 function generarCheckboxes() {
   const container = $('checkboxesContainer');
   disciplinas.forEach(actividad => {
@@ -184,34 +156,6 @@ function generarCheckboxes() {
   });
 }
 
-function limpiaCampos() {
-  $('nombre').value = "";
-  $('apellidoPaterno').value = "";
-  $('apellidoMaterno').value = "";
-  $('fechaNacimiento').value = "";
-  $('numTelefono').value = "";
-  $('email').value = "";
-  $('curp').value = "";
-  $('genero').value = "Selecciona una opción";
-  $('escolaridad').value = "Selecciona una opción";
-  $('estado').value = "Selecciona una opción";
-  $('municipio').value = "";
-  $('colonia').value = "";
-  $('calle_numero').value = "";
-  $('codigo_postal').value = "";
-  $('contanto_emergencia').value = "";
-  $('telefono_emergencia').value = "";
-  $('enfermedades').value = "";
-  $('alergias').value = "";
-  $('tipoSangre').value = "Selecciona una opción";
-  $('asociacion').value = "Selecciona una opción";
-  //$('clubes').value = "";
-  $('disciplina').value = "Selecciona una opción";
-  $('funcion').value = "Selecciona una opción";
-  $('subfuncion').value = "";
-}
-
-
 document.getElementById('funcion').addEventListener('change', function () {
   const funcionSeleccionada = GV('funcion');
   laFuncion = funcionSeleccionada;
@@ -221,13 +165,13 @@ document.getElementById('funcion').addEventListener('change', function () {
   let prueba;
   switch (funcionSeleccionada) {
     case 'Personal técnico':
-      prueba = funcion_personalTec;      
+      prueba = funcion_personalTec;
       break;
     case 'Consejo directivo':
-      prueba = funcion_consejo;      
+      prueba = funcion_consejo;
       break;
     case 'Servicio médico':
-      prueba = funcion_serMed;      
+      prueba = funcion_serMed;
       break;
     default:
       document.getElementById('subfuncion').classList.remove('error');
@@ -239,6 +183,12 @@ document.getElementById('funcion').addEventListener('change', function () {
   sub.classList.add('error');
 });
 
+function checaCampos(campo) {
+  if (!campo.value.trim() || !campo.checkValidity()) {
+    campo.classList.add('error');
+    todosCompletos = false;
+  }
+}
 
 function regresaDatosform() {
   let _enfermedades = GV('enfermedades');
@@ -249,9 +199,6 @@ function regresaDatosform() {
   if (_alergias === "") {
     _alergias = "No registradas";
   }
-  console.log("Enfermedades: ", _enfermedades);
-  console.log("Alergias: ", _alergias);
-
   const formData = {
     destino: "formulario",
     nombre: GV('nombre'),
@@ -278,7 +225,7 @@ function regresaDatosform() {
     disciplina: lasDisciplinas,
     funcion: laFuncion,
     subfuncion: laSubFuncion,
-    imagenBase64: base64String
+    imagenBase64: base64Comprobante
   };
   // Convertir a JSON
   const jsonData = JSON.stringify(formData);
@@ -286,94 +233,7 @@ function regresaDatosform() {
   return jsonData;
 }
 
-function abrirPathImg() {
-  // Activar el input de archivo
-  console.log("Abrir la imagen");
-  fileInput.click();
-}
-
-// Escuchar el cambio en el input de archivo
-fileInput.addEventListener("change", function (event) {
-  console.log("Versión 1");
-  // Obtener el archivo seleccionado
-  const file = event.target.files[0];  
-  if (file) {    
-    const maxSize = 2 * 1024 * 1024; // 2 MB
-    if (file.size > maxSize) {
-      alert("El archivo es demasiado grande. El tamaño máximo permitido es 2 MB.");
-    } else {
-      // 1) Detectamos BMP por MIME o extensión
-      const isBMP = file.type === "image/bmp" || file.name.toLowerCase().endsWith(".bmp");
-      if (!isBMP) {
-        console.log("No es un bmp");
-        // Crear una URL temporal para la imagen
-        const imageUrl = URL.createObjectURL(file);
-        // Mostrar la imagen en el área de previsualización
-        imagePreview.innerHTML = `<img src="${imageUrl}" alt="Vista previa" style="max-width: 100%; height: auto;">`;
-        // 
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          console.log("Acá poner función a redimensión");
-          base64String = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      } else {
-        console.log("Tenemos un bmp");
-      }
-    }
-  } else {
-    // Limpiar el área de previsualización si no se seleccionó un archivo
-    console.log("No imagen seleccionada");
-    imagePreview.innerHTML = "";
-  }
-});
-
-function revisaBMP(file) {
-  // 2) Leemos como DataURL
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      // 3) Creamos canvas y dibujamos la BMP
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      // 4) Exportamos como JPEG (puedes ajustar calidad 0.8)
-      canvas.toBlob(blob => {
-        // 5) Volvemos a convertir a Base64 para enviarlo
-        const reader2 = new FileReader();
-        reader2.onload = ev2 => {
-          base64String = ev2.target.result; // esto ya es data:image/jpeg;base64,...
-          // Actualiza la previsualización
-          imagePreview.innerHTML = `<img src="${base64String}" style="max-width:100%; height:auto;">`;
-        };
-        reader2.readAsDataURL(blob);
-      }, "image/jpeg", 0.8);
-    };
-    img.onerror = () => {
-      alert("No se pudo procesar el BMP. Usa JPG o PNG, por favor.");
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function guardarDisciplina() {
-  const checkboxes = document.querySelectorAll('input[name="actividad"]:checked');
-  const actividadesSeleccionadas = [];
-  checkboxes.forEach(checkbox => {
-    actividadesSeleccionadas.push(checkbox.value);
-  });
-  lasDisciplinas = actividadesSeleccionadas.join(', ');  
-}
-
-function enviarPost(jsonData) {
-  const _bt = $('btn-enviar');
-  const _btImg = $('btn-img');
-  _btImg.disabled = true;
-
+function enviarPost(jsonData) {  
   fetch(URL_ACTIVA0, {
     method: 'POST',
     body: jsonData,
@@ -388,26 +248,27 @@ function enviarPost(jsonData) {
     .then(data => {
       console.log("Datos recibidos: ", data);
       // Filtrar y procesar la respuesta
-      if (data.status === "success") {
+      if (data.success) {
         console.log("Éxito:", data.message);
-        _bt.textContent = "Registro enviado";
-        //alert("Éxito: " + data.message + "  ID: " + data.id); // Mostrar un mensaje al usuario        
+        let _bt = $('btn-enviar');
+        _bt.textContent = "Registro recibido.";
+        // Mostrar un mensaje al usuario        
         alert("Este es tu número de registro " + data.id + " enviado exitosamente.")
       } else {
         console.error("Error:", data.message);
-        alert("Error: " + data.message); // Mostrar un mensaje de error al usuario
+        mostrarToast("Error: " + data.message); // Mostrar un mensaje de error al usuario
       }
     })
     .catch(error => {
       console.error('Error al enviar el correo:', error);
-      alert("Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.");
+      mostrarToast("Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.");
     });
 }
 
 // Función para verificar si todos los campos están completos
 function verificarCampos() {
+  console.log("Verificando campos");
   guardarDisciplina();
-
   // Limpiamos errores previos
   document.querySelectorAll('.error').forEach(el => {
     el.classList.remove('error');
@@ -416,8 +277,8 @@ function verificarCampos() {
   let todosCompletos = true;
   // 1) Validación de disciplinas
   if (lasDisciplinas === "") {
-    // Resaltamos el fieldset
-    document.querySelector('fieldset').classList.add('error');
+    // Resaltamos el fieldset    
+    $('lasDisciplinas').classList.add('error');
     todosCompletos = false;
   }
   const frm = $('registroForm');  // Obtener referencias al formulario y al botón de envío
@@ -436,9 +297,7 @@ function verificarCampos() {
     else if (campo.id === "clubes") {
       // Cuando se llegue a clubes se debe verificar la asociación
       const cAs = GV('asociacion');
-      if (cAs !== "-") {
-        // Si el valor seleccionado es diferente a "No asociación"
-        // entonces sí se debe verificar el campo "clubes"
+      if (cAs !== "-") {        
         if (!campo.value.trim() || !campo.checkValidity()) {
           campo.classList.add('error');
           todosCompletos = false;
@@ -448,9 +307,7 @@ function verificarCampos() {
     else if (campo.id === "subfuncion") {
       // Al igual que clubes, está ligado estrechamente con otro control
       const fn = GV('funcion');
-      if (fn === 'Personal técnico' || fn === 'Consejo directivo' || fn === 'Servicio médico') {
-        // Si función tiene el valor de estos campos entonces sí es necesario que
-        // en subfunción tenga un valor.
+      if (fn === 'Personal técnico' || fn === 'Consejo directivo' || fn === 'Servicio médico') {        
         if (!campo.value.trim() || !campo.checkValidity()) {
           campo.classList.add('error');
           todosCompletos = false;
@@ -460,32 +317,34 @@ function verificarCampos() {
     // Si está vacío o inválido
     else if (!campo.value.trim() || !campo.checkValidity()) {
       campo.classList.add('error');
-      todosCompletos = false;
-      //alert("Por favor verifica los datos ingresados.");
+      todosCompletos = false;      
     }
   });
-  if (!todosCompletos || base64String === "") {
+  if (!todosCompletos) {
     if (!todosCompletos) {
-      alert("Por favor verifica los datos ingresados (marcados en rojo).");
+      mostrarToast("Por favor verifica los datos ingresados (marcados en rojo).");
       return false;
     }
-    if (base64String === "") {
-      alert("Por favor carga una imagen");
-      return false;
+    if (!imagenProcesadaOK || !base64Comprobante) {
+      console.log("Por favor selecciona una imagen válida para el evento o competencia antes de enviar.");
+      mostrarToast("Por favor selecciona una imagen válida antes de enviar.");      
+      return;
     }
   }
   return todosCompletos;
 }
 
-function checaCampos(campo) {
-  if (!campo.value.trim() || !campo.checkValidity()) {
-    campo.classList.add('error');
-    todosCompletos = false;
-  }
+function guardarDisciplina() {
+  const checkboxes = document.querySelectorAll('input[name="actividad"]:checked');
+  const actividadesSeleccionadas = [];
+  checkboxes.forEach(checkbox => {
+    actividadesSeleccionadas.push(checkbox.value);
+  });
+  lasDisciplinas = actividadesSeleccionadas.join(', ');  
 }
 
 // Para todos los inputs y selects
-document.querySelectorAll('#registroForm input, #registroForm select').forEach(el => {
+document.querySelectorAll('#registroForm input, #registroForm select').forEach(el => {  
   el.addEventListener('input', () => {
     if (el.id === 'subfuncion') {
       laSubFuncion = el.value;
@@ -497,18 +356,25 @@ document.querySelectorAll('#registroForm input, #registroForm select').forEach(e
 
 // Para los checkboxes (disciplinas), al hacer clic quitamos el error del fieldset
 document.querySelectorAll('input[type="checkbox"][name="actividad"]').forEach(cb => {
+  console.log("!!!!!!!!!!!");
   cb.addEventListener('change', () => {
     document.querySelector('fieldset').classList.remove('error');
   });
 });
 
 function enviarFormulario() {
+
+  const v1 = $('asociacion');
+  const elValue = v1.value;
+  const elTexto2 = v1.options[v1.selectedIndex].text;
+  console.log("value: ", elValue);
+  console.log("innerText: ", elTexto2);
   if (verificarCampos()) {
     console.log("Desactivamos el botón");
-    const _bt = $('btn-enviar');
+    let _bt = $('btn-enviar');
     _bt.textContent = "Espera unos segundos por favor...";
     _bt.disabled = true; // Deshabilitar el botón
-    var jsonData = regresaDatosform();
+    const jsonData = regresaDatosform();
     enviarPost(jsonData);
   } else {
     console.log("Datos incompletos");
