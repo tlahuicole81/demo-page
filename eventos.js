@@ -1,5 +1,8 @@
 window.addEventListener('DOMContentLoaded', () => {
   fetchDatosEventosYCompetencias();
+  document.getElementById("comprobanteSeguro").value = "";
+  document.getElementById("comprobante").value = "";
+
   validarArchivoImagen("comprobanteSeguro", "previewSeguro");
   validarArchivoImagen("comprobante", "previewCompEvento");
 });
@@ -8,7 +11,7 @@ let base64Comprobante = null;
 let imagenProcesadaOK = false;
 
 async function fetchDatosEventosYCompetencias() {
-  try {    
+  try {
     const res = await fetch(URL_ACTIVA);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -76,7 +79,7 @@ function cargarFichas(idContenedor, lista) {
       </div>
       
     `;
-    contenedor.appendChild(card);    
+    contenedor.appendChild(card);
   });
 }
 
@@ -85,8 +88,6 @@ function adaptarLinkDrive(link) {
   return match ? `https://drive.google.com/file/d/${match[0]}/preview` : '';
 }
 
-
-// Modal
 const modal = document.getElementById("registroModal");
 const cerrarModal = document.getElementById("cerrarModal");
 cerrarModal.onclick = () => modal.style.display = "none";
@@ -130,7 +131,6 @@ function abrirModal(data, esCompetencia) {
   modal.style.display = "block";
 }
 
-// Listener del formulario (placeholder)
 document.getElementById("formularioRegistro").addEventListener("submit", async e => {
   e.preventDefault();
   // UI: ocultar errores previos, mostrar spinner
@@ -190,17 +190,17 @@ document.getElementById("formularioRegistro").addEventListener("submit", async e
     console.error("Error al enviar:", err);
     alert("Ocurrió un error al enviar el registro.");
   }
-
+  document.getElementById("comprobante").value = "";
   resetearFormulario();
 });
 
-// Oculta spinner y reactiva botón
 function resetearFormulario() {
   document.getElementById("spinnerEnvio").style.display = "none";
   const btn = document.getElementById("enviarRegistro");
   btn.disabled = false;
   btn.textContent = "Enviar registro";
 }
+
 
 document.getElementById("formularioSeguro").addEventListener("submit", async e => {
   e.preventDefault();
@@ -256,7 +256,9 @@ document.getElementById("formularioSeguro").addEventListener("submit", async e =
     alert("Ocurrió un error inesperado.");
   }
   $('enviarSeguro').textContent = "Comprobante enviado";
-  $("enviarSeguro").disabled = true;  
+  $("enviarSeguro").disabled = true;
+  document.getElementById("comprobanteSeguro").value = "";
+  resetearSeguro();
 });
 
 function resetearSeguro() {
