@@ -123,9 +123,7 @@ function abrirModal(data, esCompetencia) {
 
   const info = `
     <p><strong>Nombre:</strong> ${data.Nombre}</p>
-    ${data.Fecha ? `<p><strong>Fecha:</strong> ${formatearFecha(data.Fecha)}</p>` : ''}
-    ${data.Lugar ? `<p><strong>Lugar:</strong> ${data.Lugar}</p>` : ''}
-    ${data.Costo ? `<p><strong>Costo:</strong> ${formatearMoneda(data.Costo)}</p>` : ''}
+    ${data.Fecha ? `<p><strong>Fecha:</strong> ${formatearFecha(data.Fecha)}</p>` : ''}        
   `;
 
   document.getElementById("modalTitulo").textContent = esCompetencia ? "Registro a competencia" : "Registro a evento";
