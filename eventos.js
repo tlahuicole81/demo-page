@@ -135,10 +135,8 @@ function abrirModal(data, esCompetencia) {
   modal.style.display = "block";
   // Espera un instante para asegurar que todo el contenido esté renderizado
   setTimeout(() => {
-    if (window.innerHeight < 800) {
-      const boton = document.getElementById("enviarRegistro");
-      boton.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
+    const boton = document.getElementById("enviarRegistro");
+    boton.scrollIntoView({ behavior: "smooth", block: "end" });
   }, 100);
 }
 
