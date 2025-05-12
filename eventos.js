@@ -80,6 +80,8 @@ function cargarFichas(idContenedor, lista) {
       
     `;
     contenedor.appendChild(card);
+    // obsoleto:  
+    // ${item.Imagen ? `<iframe src="${adaptarLinkDrive(item.Imagen)}" width="100%" height="220" frameborder="0" loading="lazy"></iframe>` : ''}
   });
 }
 
@@ -88,6 +90,8 @@ function adaptarLinkDrive(link) {
   return match ? `https://drive.google.com/file/d/${match[0]}/preview` : '';
 }
 
+
+// Modal
 const modal = document.getElementById("registroModal");
 const cerrarModal = document.getElementById("cerrarModal");
 cerrarModal.onclick = () => modal.style.display = "none";
@@ -129,8 +133,16 @@ function abrirModal(data, esCompetencia) {
   document.getElementById("seccionPlayera").style.display = esCompetencia ? "block" : "none";
   document.getElementById("laEstatura").style.display = esCompetencia ? "block" : "none";
   modal.style.display = "block";
+  // Espera un instante para asegurar que todo el contenido esté renderizado
+  setTimeout(() => {
+    if (window.innerHeight < 800) {
+      const boton = document.getElementById("enviarRegistro");
+      boton.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, 100);
 }
 
+// Listener del formulario (placeholder)
 document.getElementById("formularioRegistro").addEventListener("submit", async e => {
   e.preventDefault();
   // UI: ocultar errores previos, mostrar spinner
@@ -170,7 +182,8 @@ document.getElementById("formularioRegistro").addEventListener("submit", async e
       talla: tipoActual === "competencia" ? talla : null,
       estatura: tipoActual === "competencia" ? estaturaPart : null,
       comprobante: base64Comprobante
-    };    
+    };
+    //console.log(JSON.stringify(payload));
     const response = await fetch(URL_ACTIVA0, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -194,6 +207,8 @@ document.getElementById("formularioRegistro").addEventListener("submit", async e
   resetearFormulario();
 });
 
+
+// Oculta spinner y reactiva botón
 function resetearFormulario() {
   document.getElementById("spinnerEnvio").style.display = "none";
   const btn = document.getElementById("enviarRegistro");
