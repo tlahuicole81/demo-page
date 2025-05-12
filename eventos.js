@@ -4,7 +4,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById("comprobante").value = "";
 
   validarArchivoImagen("comprobanteSeguro", "previewSeguro");
-  validarArchivoImagen("comprobante", "previewCompEvento");
+  //validarArchivoImagen("comprobante", "previewCompEvento");
 });
 
 let base64Comprobante = null;
@@ -48,13 +48,14 @@ function formatearMoneda(valor) {
   });
 }
 
-function cargarFichas(idContenedor, lista) {
+function __cargarFichas(idContenedor, lista) {
   const contenedor = document.getElementById(idContenedor);
   contenedor.innerHTML = '';
 
   lista.forEach(item => {
     const card = document.createElement("div");
     card.className = "card";
+
     const esCompetencia = idContenedor === "competencias";
     card.innerHTML = `
       <h2>${item.Nombre}</h2>
@@ -83,6 +84,113 @@ function cargarFichas(idContenedor, lista) {
     // obsoleto:  
     // ${item.Imagen ? `<iframe src="${adaptarLinkDrive(item.Imagen)}" width="100%" height="220" frameborder="0" loading="lazy"></iframe>` : ''}
   });
+}
+function cargarFichas(idContenedor, lista) {
+  const contenedor = $(idContenedor);
+  contenedor.innerHTML = '';
+
+  lista.forEach((item, idx) => {
+    //console.log("Revisando la imagen a ver qué onda");
+    const esCompetencia = idContenedor === 'competencias';
+    console.log("Revisando para dónde va ", esCompetencia);
+    /* ----  Cartel  (base64 o enlace Drive) ---- */
+    let cartelHTML = '';
+    if (item.Imagen) {
+      cartelHTML = item.Imagen.startsWith('data:image')
+        ? `<img src="${item.Imagen}" alt="Cartel">`
+        : `<iframe src="${adaptarLinkDrive(item.Imagen)}"
+                   width="100%" height="220" frameborder="0" loading="lazy"></iframe>`;
+    }
+    
+    /* ➜  Clave única para evitar colisiones */
+    const key = `${idContenedor}-${idx}`;
+console.log("A ver la famosa key ", key);
+    /* ----  Tarjeta  ---- */
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h2>${item.Nombre}</h2>
+      ${item.Fecha ? `<p><strong>Fecha:</strong> ${formatearFecha(item.Fecha)}</p>` : ''}
+      ${item.FechaIni && item.FechaFin
+        ? `<p><strong>Fechas:</strong> ${formatearFecha(item.FechaIni)} – ${formatearFecha(item.FechaFin)}</p>` : ''}
+      ${item.Duracion ? `<p><strong>Duración:</strong> ${item.Duracion}</p>` : ''}
+      ${item.Lugar ? `<p><strong>Lugar:</strong> ${item.Lugar}</p>` : ''}
+      ${item.Cuota ? `<p><strong>Cuota:</strong> ${formatearMoneda(item.Cuota)}</p>` : ''}
+      ${item.Costo ? `<p><strong>Costo:</strong> ${formatearMoneda(item.Costo)}</p>` : ''}
+      ${item.Categoria ? `<p><strong>Categoría:</strong> ${item.Categoria}</p>` : ''}
+      ${item.Subcategoria ? `<p><strong>Subcategoría:</strong> ${item.Subcategoria}</p>` : ''}
+      ${item.Rama ? `<p><strong>Rama:</strong> ${item.Rama}</p>` : ''}
+      ${item.FechaLimite ? `<p><strong>Inscripción hasta:</strong> ${item.FechaLimite}</p>` : ''}
+      ${item.DatosPago ? `<p><strong>Datos de pago:</strong> ${item.DatosPago}</p>` : ''}
+      ${cartelHTML}
+
+      <button class="btn-registrar"
+              onclick="mostrarFormulario('${key}')">Registrarme</button>
+
+      <!-- FORMULARIO INLINE OCULTO -->
+      <div id="formContainer-${key}" class="form-inline" style="display:none;">
+        <form id="formRegistro-${key}" data-tipo="${esCompetencia ? 'competencia' : 'evento'}">
+          <label>Nombre completo:<input type="text" name="nombre" required></label>
+          <label>ID o CURP:<input type="text" name="id" required></label>
+          <label>E-mail:<input type="email" name="email" required></label>
+
+          <label>Comprobante de pago:
+            <input type="file" name="comprobante"
+                   id="comp-${key}" accept="image/jpeg,image/png" required>
+          </label>
+          <div id="prev-${key}"></div>
+
+          <!-- Campos extra SOLO para competencias -->
+          <div class="extraComp" ${esCompetencia ? '' : 'style="display:none;"'}>
+            <label>Estatura (cm):<input type="text" name="estatura" ${esCompetencia ? 'required' : ''}></label>
+            <label>Talla de playera:
+              <select name="talla" ${esCompetencia ? 'required' : ''}>
+                <option value="">Selecciona</option>
+                <option value="Chica">Chica</option>
+                <option value="Mediana">Mediana</option>
+                <option value="Grande">Grande</option>
+                <option value="Extragrande">Extragrande</option>
+              </select>
+            </label>
+          </div>
+
+          <button type="submit">Enviar registro</button>
+        </form>
+      </div>
+
+      <div class="contacto">
+        ${item.AsociacionOrg ? `<p><strong>Asociación:</strong> ${item.AsociacionOrg}</p>` : ''}
+        ${item.Telefono ? `<p><strong>Tel.:</strong> ${item.Telefono}</p>` : ''}
+        ${item.Correo ? `<p><strong>Email:</strong> <a href="mailto:${item.Correo}">${item.Correo}</a></p>` : ''}
+        ${item.WebPage ? `<p><strong>Web:</strong> <a href="${item.WebPage}" target="_blank">${item.WebPage}</a></p>` : ''}
+      </div>
+    `;
+
+/* Guardamos algunos metadatos en dataset para el envío */
+    card.dataset.nombreEvento   = item.Nombre;
+    card.dataset.correoOrg      = item.CorreoOrg || item.Correo || '';
+    card.dataset.asociacionOrg  = item.AsociacionOrg || '';
+
+    contenedor.appendChild(card);
+
+    /* === Activamos validación de la imagen para este formulario === */
+    validarArchivoImagen(`comp-${key}`, `prev-${key}`);
+    /* === Listener de envío de este formulario específico === */
+    document.getElementById(`formRegistro-${key}`).addEventListener('submit', e => enviarRegistroInline(e, card));
+
+  });
+  
+}
+
+/* ============  Mostrar / ocultar el form de una ficha  ============ */
+function mostrarFormulario(key) {
+  console.log("Nombre del formulario: ", key);
+  const div = document.getElementById(`formContainer-${key}`);
+  div.style.display = div.style.display === 'none' ? 'block' : 'none';
+  setTimeout(() => {
+    div.querySelector('button[type="submit"]')
+       .scrollIntoView({ behavior:'smooth', block:'end' });
+  }, 100);
 }
 
 function adaptarLinkDrive(link) {
@@ -120,10 +228,12 @@ function abrirModal(data, esCompetencia) {
     campoTalla.value = "";
     _estatura.value = "";
   }
-
+  //${data.Lugar ? `<p><strong>Lugar:</strong> ${data.Lugar}</p>` : ''}
   const info = `
     <p><strong>Nombre:</strong> ${data.Nombre}</p>
-    ${data.Fecha ? `<p><strong>Fecha:</strong> ${formatearFecha(data.Fecha)}</p>` : ''}        
+    ${data.Fecha ? `<p><strong>Fecha:</strong> ${formatearFecha(data.Fecha)}</p>` : ''}
+    
+    ${data.Costo ? `<p><strong>Costo:</strong> ${formatearMoneda(data.Costo)}</p>` : ''}
   `;
 
   document.getElementById("modalTitulo").textContent = esCompetencia ? "Registro a competencia" : "Registro a evento";
