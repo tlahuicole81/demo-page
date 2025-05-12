@@ -66,7 +66,7 @@ function cargarFichas(idContenedor, lista) {
       ${item.Rama ? `<p><strong>Rama:</strong> ${item.Rama}</p>` : ''}
       ${item.FechaLimite ? `<p><strong>Inscripción hasta:</strong> ${item.FechaLimite}</p>` : ''}
       ${item.DatosPago ? `<p><strong>Datos de pago:</strong> ${item.DatosPago}</p>` : ''}      
-      ${item.Imagen ? `<iframe src="${adaptarLinkDrive(item.Imagen)}" width="100%" height="220" frameborder="0" loading="lazy"></iframe>` : ''}
+      ${item.Imagen ? `<img src="${item.Imagen}" alt="Cartel">` : ''}
       <button class="btn-registrar" onclick='abrirModal(${JSON.stringify(item)}, ${esCompetencia})'>Registrarme</button>
       <div class="contacto">
         ${item.AsociacionOrg ? `<p><strong>Asociación:</strong> ${item.AsociacionOrg}</p>` : ''}
