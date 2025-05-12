@@ -83,6 +83,9 @@
 
     .card .contacto a {
       color: #ffffff;
+      /* texto blanco */
+      /* text-decoration: underline; */
+      /* opcional: para que parezca enlace */
     }
 
     .card .contacto a:hover {
@@ -113,81 +116,46 @@
       color: #fff;
     }
 
-    .modal-content {
-      background-color: #2c2c3e;
-      color: #e0e0e0;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 90vh;
-      /* ✅ altura máxima relativa a la pantalla */
-      overflow-y: auto;
-      /* ✅ scroll vertical si se pasa */
-      box-shadow: 0 0 15px #000;
-    }
+    
 
-    .modal-content h2 {
-      color: #00bfff;
-    }
-
-    .modal-content label {
-      margin-top: 10px;
-      display: block;
-    }
-
-    .modal-content input,
-    .modal-content select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      margin-bottom: 12px;
-      border-radius: 5px;
-      border: none;
-    }
-
-    .modal-content button:hover {
-      background-color: #009acc;
-    }
-
-    .modal-content form {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .modal-content .form-scrollable {
-      overflow-y: auto;
-      flex-grow: 1;
-    }
-
-    .modal-content button[type="submit"] {
-      position: sticky;
-      bottom: 0;
-      background-color: #00bfff;
-      padding: 10px;
-      border: none;
+    .form-inline {
+      background: #1b1b2a;
+      border: 1px solid #444;
       border-radius: 6px;
+      padding: 12px;
+      margin-top: 14px;
+    }
+
+    .form-inline label {
+      display: block;
+      font-size: 0.9em;
+      margin-top: 8px;
+    }
+
+    .form-inline input,
+    .form-inline select {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      background: #2c2c3e;
+      color: #e0e0e0;
+    }
+
+    .form-inline button {
+      width: 100%;
+      margin-top: 12px;
+      background: #00bfff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
       cursor: pointer;
-      margin-top: auto;
-      z-index: 10;
     }
 
-    .form-scrollable {
-      overflow-y: auto;
-      flex-grow: 1;
-      min-height: 0;
-      /* 🔑 importante para flexbox scroll */
+    .form-inline button:hover {
+      background: #009acc;
     }
-
-    /* Margen de seguridad en pantallas pequeñas */
-    @media (max-height: 750px) {
-      .modal-content button[type="submit"] {
-        margin-bottom: env(safe-area-inset-bottom, 30px);
-      }
-    }
-
 
     #loader {
       position: fixed;
@@ -291,11 +259,12 @@
       overflow: hidden;
       margin-top: 10px;
     }
-    
+
     #previewCompEvento img {
       max-height: 50px;
       width: auto;
-      display: block;      
+      display: block;
+      /* margin-top: 10px; */
       object-fit: contain;
     }
 
