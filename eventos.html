@@ -65,6 +65,7 @@
       margin: 4px 0;
       font-size: 0.95em;
       color: #ccc;
+
     }
 
     .card .contacto {
@@ -77,6 +78,19 @@
       display: inline-block;
       min-width: 90px;
       color: #89d0ff;
+      /* Color de letra para Tel., Email, Web*/
+    }
+
+    .card .contacto a {
+      color: #ffffff;
+      /* texto blanco */
+      /* text-decoration: underline; */
+      /* opcional: para que parezca enlace */
+    }
+
+    .card .contacto a:hover {
+      color: #00bfff;
+      /* color de acento al pasar el mouse */
     }
 
     .modal {
@@ -166,6 +180,13 @@
       z-index: 2000;
     }
 
+    .card iframe {
+      border: 1px solid #666;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      max-width: 100%;
+    }
+
     .spinner {
       border: 6px solid #444;
       border-top: 6px solid #00bfff;
@@ -240,6 +261,14 @@
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
     }
 
+    #previewCompEvento img {
+      max-height: 200px;
+      width: auto;
+      display: block;
+      margin-top: 10px;
+      object-fit: contain;
+    }
+
     .toast {
       visibility: hidden;
       min-width: 250px;
@@ -270,18 +299,20 @@
 <body>
   <div id="loader">
     <div class="spinner"></div>
-    <p>Cargando datos, espera un momento por favor...</p>
+    <p>Cargando, espera un momento por favor...</p>
   </div>
 
   <div class="container">
     <h1>Eventos y Competencias</h1>
+    <!-- Contenedor:   eventos -->
     <h2 style="color:#00bfff;">Eventos</h2>
     <div id="eventos" class="cards-grid"></div>
 
+    <!-- Contenedor:   competancias -->
     <h2 style="color:#00bfff;">Competencias</h2>
     <div id="competencias" class="cards-grid"></div>
 
-    <h2 style="color:#00bfff; margin-top:40px;">Comprobante de pago de seguro médico</h2>
+    <h2 style="color:#00bfff; margin-top:40px;">Contratación de seguro médico</h2>
     <div id="seguroMedico" class="cards-grid">
       <div class="card" style="max-width:500px; margin:auto;">
         <form id="formularioSeguro">
@@ -309,8 +340,6 @@
       </div>
     </div>
   </div>
-
-
   <!-- Modal de registro -->
   <div id="registroModal" class="modal">
     <div class="modal-content">
@@ -358,6 +387,7 @@
   </div>
 
   <div id="toast" class="toast"></div>
+  <script src="../rutinas/utilidades.js"></script>
   <script src="eventos.js"></script>
 </body>
 
