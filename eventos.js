@@ -4,20 +4,11 @@ window.addEventListener('DOMContentLoaded', () => {
   validarArchivoImagen("comprobante", "previewCompEvento");
 });
 
-function $(id) {
-  return document.getElementById(id);
-}
-
-// GAS - (doGet) Acceso-Login. [Nombre de archivo: Acceso]
-const URL_ACTIVA = 'https://script.google.com/macros/s/AKfycby2ncpiLXY6vWg2hOQ4XGYCLcvcJnesYaYY6037eXDlxiKl3UT8o8BkbsZd4fAD59YZsA/exec';
-// GAS - (doPOST) Ingreso-Datos. [Nombre de archivo: Asociados]
-const URL_ENVIO_REG = 'https://script.google.com/macros/s/AKfycbyJkYvHkikV5d1a281pBfiBf4mMtoPsBNGITIr8tYtBqug0FDj786Vcfx_tktsFW6pV/exec'
-
 let base64Comprobante = null;
 let imagenProcesadaOK = false;
 
 async function fetchDatosEventosYCompetencias() {
-  try {
+  try {    
     const res = await fetch(URL_ACTIVA);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -74,8 +65,8 @@ function cargarFichas(idContenedor, lista) {
       ${item.Subcategoria ? `<p><strong>Subcategoría:</strong> ${item.Subcategoria}</p>` : ''}
       ${item.Rama ? `<p><strong>Rama:</strong> ${item.Rama}</p>` : ''}
       ${item.FechaLimite ? `<p><strong>Inscripción hasta:</strong> ${item.FechaLimite}</p>` : ''}
-      ${item.DatosPago ? `<p><strong>Datos de pago:</strong> ${item.DatosPago}</p>` : ''}
-      ${item.Imagen ? `<img src="${item.Imagen}" alt="Cartel">` : ''}
+      ${item.DatosPago ? `<p><strong>Datos de pago:</strong> ${item.DatosPago}</p>` : ''}      
+      ${item.Imagen ? `<iframe src="${adaptarLinkDrive(item.Imagen)}" width="100%" height="220" frameborder="0" loading="lazy"></iframe>` : ''}
       <button class="btn-registrar" onclick='abrirModal(${JSON.stringify(item)}, ${esCompetencia})'>Registrarme</button>
       <div class="contacto">
         ${item.AsociacionOrg ? `<p><strong>Asociación:</strong> ${item.AsociacionOrg}</p>` : ''}
@@ -85,10 +76,15 @@ function cargarFichas(idContenedor, lista) {
       </div>
       
     `;
-
-    contenedor.appendChild(card);
+    contenedor.appendChild(card);    
   });
 }
+
+function adaptarLinkDrive(link) {
+  const match = link.match(/[-\w]{25,}/);
+  return match ? `https://drive.google.com/file/d/${match[0]}/preview` : '';
+}
+
 
 // Modal
 const modal = document.getElementById("registroModal");
@@ -147,11 +143,9 @@ document.getElementById("formularioRegistro").addEventListener("submit", async e
   const nombre = document.getElementById("nombre").value.trim();
   const id = document.getElementById("idParticipante").value.trim();
   const emailUsuario = document.getElementById("correo").value.trim();
-  //const archivo = document.getElementById("comprobante").files[0];
-  //console.log("¿Qué contiene el archivo?: ", archivo);
   const talla = document.getElementById("tallaPlayera").value;
   const estaturaPart = document.getElementById("estatura").value;
-  if (!nombre || !id  || (tipoActual === "competencia" && !talla && !estaturaPart)) {
+  if (!nombre || !id || (tipoActual === "competencia" && !talla && !estaturaPart)) {
     alert("Por favor completa todos los campos.");
     resetearFormulario();
     return;
@@ -159,11 +153,11 @@ document.getElementById("formularioRegistro").addEventListener("submit", async e
   if (!imagenProcesadaOK || !base64Comprobante) {
     console.log("Por favor selecciona una imagen válida para el evento o competencia antes de enviar.");
     mostrarToast("Por favor selecciona una imagen válida antes de enviar.");
-    resetearSeguro();
+    resetearFormulario();
     return;
   }
 
-  try {    
+  try {
     console.log("Preparando el envío");
     const payload = {
       destino: tipoActual === "evento" ? "registroEvento" : "registroCompetencia",
@@ -176,9 +170,8 @@ document.getElementById("formularioRegistro").addEventListener("submit", async e
       talla: tipoActual === "competencia" ? talla : null,
       estatura: tipoActual === "competencia" ? estaturaPart : null,
       comprobante: base64Comprobante
-    };
-    //console.log(JSON.stringify(payload));
-    const response = await fetch(URL_ENVIO_REG, {
+    };    
+    const response = await fetch(URL_ACTIVA0, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
@@ -201,63 +194,6 @@ document.getElementById("formularioRegistro").addEventListener("submit", async e
   resetearFormulario();
 });
 
-function convertirArchivoABase64(archivo) {
-  return new Promise((resolve, reject) => {
-    const intentarCompresion = (calidad) => {
-      const img = new Image();
-      const reader = new FileReader();
-
-      reader.onload = e => {
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxAncho = 800;
-          const escala = maxAncho / img.width;
-          canvas.width = Math.min(maxAncho, img.width);
-          canvas.height = img.height * escala;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          const base64 = canvas.toDataURL('image/jpeg', calidad);
-          const tamañoKB = Math.round((base64.length * 3) / 4 / 1024);
-
-          if (tamañoKB > 500 && calidad > 0.4) {
-            mostrarToast(`La imagen es grande (${tamañoKB} KB). Intentando más compresión...`);
-            return intentarCompresion(0.4); // intento final
-          }
-
-          if (tamañoKB > 500) {
-            mostrarToast(`La imagen sigue siendo muy pesada (${tamañoKB} KB). Usa otra más ligera.`);
-            return reject("Imagen demasiado grande después de dos intentos");
-          }
-
-          resolve(base64);
-        };
-
-        img.onerror = () => reject("Error al cargar imagen");
-        img.src = e.target.result;
-      };
-
-      reader.onerror = reject;
-      reader.readAsDataURL(archivo);
-    };
-
-    if (archivo.type === "image/bmp") {
-      mostrarToast("Formato .bmp no permitido. Usa JPG o PNG");
-      return reject("Formato no soportado");
-    }
-
-    if (archivo.size <= 220 * 1024) {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(archivo);
-    } else {
-      intentarCompresion(0.6);
-    }
-  });
-}
-
 // Oculta spinner y reactiva botón
 function resetearFormulario() {
   document.getElementById("spinnerEnvio").style.display = "none";
@@ -265,7 +201,6 @@ function resetearFormulario() {
   btn.disabled = false;
   btn.textContent = "Enviar registro";
 }
-
 
 document.getElementById("formularioSeguro").addEventListener("submit", async e => {
   e.preventDefault();
@@ -293,7 +228,6 @@ document.getElementById("formularioSeguro").addEventListener("submit", async e =
   }
 
   try {
-    //const base64 = await convertirArchivoABase64(archivo);
     const payload = {
       destino: "pagoSeguroMed",
       nombre,
@@ -302,7 +236,7 @@ document.getElementById("formularioSeguro").addEventListener("submit", async e =
       comprobante: base64Comprobante
     };
 
-    const res = await fetch(URL_ENVIO_REG, {
+    const res = await fetch(URL_ACTIVA0, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
@@ -321,59 +255,12 @@ document.getElementById("formularioSeguro").addEventListener("submit", async e =
     console.error(err);
     alert("Ocurrió un error inesperado.");
   }
-
-  resetearSeguro();
+  $('enviarSeguro').textContent = "Comprobante enviado";
+  $("enviarSeguro").disabled = true;  
 });
-
-
-function validarArchivoImagen(inputID, previewID) {
-  const input = document.getElementById(inputID);
-  const preview = document.getElementById(previewID);
-
-  input.addEventListener("change", async e => {
-    const archivo = e.target.files[0];
-    preview.innerHTML = "";
-    base64Comprobante = null;
-    imagenProcesadaOK = false;
-
-    if (!archivo) return;
-
-    if (archivo.type === "image/bmp") {
-      mostrarToast("Formato .bmp no permitido. Usa JPG o PNG");
-      input.value = ""; // limpia el campo
-      return;
-    }
-
-    try {
-      base64Comprobante = await convertirArchivoABase64(archivo);
-      imagenProcesadaOK = true;
-      //
-      const img = document.createElement("img");
-      img.src = URL.createObjectURL(archivo);
-      img.style.maxWidth = "100%";
-      img.style.border = "1px solid #666";
-      img.style.borderRadius = "6px";
-      img.style.marginTop = "10px";
-      preview.appendChild(img);
-
-    } catch (err) {
-      console.log("No se pudo procesar la imagen...");
-      mostrarToast("No se pudo procesar la imagen seleccionada.");
-    }
-  });
-}
 
 function resetearSeguro() {
   $("enviarSeguro").disabled = false;
   $("enviarSeguro").textContent = "Enviar comprobante";
   $("spinnerSeguro").style.display = "none";
-}
-
-function mostrarToast(mensaje, duracion = 3000) {
-  const toast = $("toast");
-  toast.textContent = mensaje;
-  toast.className = "toast show";
-  setTimeout(() => {
-    toast.className = "toast"; // quita la clase .show
-  }, duracion);
 }
