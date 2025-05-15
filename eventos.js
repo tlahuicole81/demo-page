@@ -1,4 +1,3 @@
-
 window.addEventListener('DOMContentLoaded', () => {
   fetchDatosEventosYCompetencias();
   document.getElementById("comprobanteSeguro").value = "";  
@@ -50,8 +49,7 @@ function cargarFichas(idContenedor, lista) {
   const contenedor = $(idContenedor);
   contenedor.innerHTML = '';
 
-  lista.forEach((item, idx) => {
-    //console.log("Revisando la imagen a ver qué onda");
+  lista.forEach((item, idx) => {    
     const esCompetencia = idContenedor === 'competencias';
     console.log("Revisando para dónde va ", esCompetencia);
     /* ----  Cartel  (base64 o enlace Drive) ---- */
