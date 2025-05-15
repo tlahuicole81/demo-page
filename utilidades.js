@@ -1,25 +1,5 @@
+const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbzWtKd-RW_5cLN1aH85L6y7bdyZgR2jFL0YRL0xeUP1lQ_iZg4INwF3qiw27CGfeUzSpA/exec"; //prueba29
 
-/* GAS - Acceso-Login [Nombre del archivo: Acceso]
-   (doPOST)
-   - Envío de credenciales para acceso y si es exitoso devuelve los
-     datos de los asociados.
-   (doGet)
-  - Recupera la información de los eventos y competencias
- */
-const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbwLQ7S55PLh3zDJUSwtGJerdy-nwXcSv7BAVUJdioa9jwssslcQO-qNXtP590WVzmV89A/exec";
-
-
-// GAS - (doGet) Acceso-Login. [Nombre de archivo: Acceso]
-//?????
-//const URL_DATOS = 'https://script.google.com/macros/s/AKfycby2ncpiLXY6vWg2hOQ4XGYCLcvcJnesYaYY6037eXDlxiKl3UT8o8BkbsZd4fAD59YZsA/exec';
-
-/* GAS - Ingreso-Datos. [Nombre de archivo: Asociados]
-  (doPOST)
-    - Envío de formulario
-    - Envío de contratación de seguro médico, eventos o de competencias
-  (doGET)
-    - Solicita el nombre de las asociaciones y sus respectivos clubes.
-*/
 const URL_ACTIVA0 = 'https://script.google.com/macros/s/AKfycbw7TX3aK6ddk7q8qqML4VF9DkDWoRebNIOY6bzQOVmAsb1gvsgljHyp08LkZQVOtTP-/exec'
 
 //
@@ -204,14 +184,11 @@ const fieldMappingEventos = {
   'eventFee': 'Cuota de recuperación',
   'registrationDeadline': 'Fecha límite inscripción',
   'depositInfo': 'Datos depósito',
-  'eventPoster': 'Nombre de imagen',
+  'eventPoster': 'Imagen',
   'contactPhone': 'Informes Teléfono',
   'contactEmail': 'Informes correo',
   'contactLink': 'Informes link página',
 };
-// 'organizador': 'Usuario Organizador'
-// Falta la asociación y la foto
-
 
 const fieldMappingCompetencia = {
   "competenciaName": "Nombre competencia",
@@ -221,30 +198,19 @@ const fieldMappingCompetencia = {
   "competenciaCategoria": "Categoría",
   "competenciaSubcategoria": "Sub-categoría",
   "competenciaCosto": "Costo",
+  "competenciaDDeposito": "Datos depósito",
   "competenciaCelular": "Celular",
   "competenciaCorreo": "Correo",
-  "competenciaWeb": "Página web"
+  "competenciaWeb": "Página web",
+  "eventCompetencia": "Imagen"
 };
-// Falta cartel
 
-
-
-
-/* Al momento de cargar una imagen se visualizará un preview
-   en <div id="imagePreview"></div> 
-Parámetros:
-  inputID  --> Control input, por ejemplo: <input type="file" id="fileInput" accept="image/jpeg,image/png">
-  previewID -> Control a previsualizar la image, ejemplo: <div id="imagePreview"></div>
-  --------
-Esta función además usa dos variables globales que deben ser declaradas:
-    base64Comprobante e imagenProcesadaOK
-*/
-function validarArchivoImagen(inputID, previewID) {  
+function validarArchivoImagen(inputID, previewID) {
   const input = document.getElementById(inputID);
   const preview = document.getElementById(previewID);
 
   // Acá agregamos el listener para que cuando el usuario cargue una imagen se analice.
-  input.addEventListener("change", async e => {    
+  input.addEventListener("change", async e => {
     console.log("Procesando imagen....");
     const archivo = e.target.files[0];
     preview.innerHTML = "";
@@ -258,35 +224,95 @@ function validarArchivoImagen(inputID, previewID) {
       mostrarToast("Formato .bmp no permitido. Usa JPG o PNG");
       input.value = ""; // limpia el campo
       return;
-    }
-
+    }    
     try {
-      base64Comprobante = await convertirArchivoABase64(archivo);
+      /* Pedimos salida con peso incluido */
+      const { base64, kb } = await convertirArchivoABase64(archivo, true);
+      console.log(` Conversión final (${archivo.name}): ${kb} KB`);
+      base64Comprobante = base64;
       imagenProcesadaOK = true;
-      //
-      const img = document.createElement("img");
+
+      const img = document.createElement('img');
       img.src = URL.createObjectURL(archivo);
-      img.style.maxWidth = "100%";
-      img.style.border = "1px solid #666";
-      img.style.borderRadius = "6px";
-      img.style.marginTop = "10px";
+      img.style.maxWidth = '100%';
+      img.style.marginTop = '10px';
       preview.appendChild(img);
 
     } catch (err) {
-      console.log("No se pudo procesar la imagen...");
-      mostrarToast("No se pudo procesar la imagen seleccionada.");
+      mostrarToast(err);      // mensaje claro al usuario
+      console.warn(err);
+      input.value = '';       // reseteamos selección
     }
   });
 }
 
-/* archivo contiene:
-{ name: "4e5ad46ab811e06e767519a28276025f.jpg", 
- lastModified: 1640195345377, 
- webkitRelativePath: "", 
- size: 19981, 
- type: "image/jpeg" }
-*/
-function convertirArchivoABase64(archivo) {
+/*
+ * convertirArchivoABase64(archivo,  debug = false)
+ *  – Admite JPG / PNG  (los PNG se convierten a JPG dentro del canvas)
+ *  – Devuelve {base64, kb}  si debug === true
+ *  – Devuelve solo base64     si debug === false
+ */
+function convertirArchivoABase64(archivo, debug) {
+  const LIMITE_KB = 250;            // cambia a tu gusto
+  return new Promise((resolve, reject) => {
+    const intentar = (calidad) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          /* Creamos canvas y redimensionamos */
+          const MAX_W = 800;
+          const esc = Math.min(1, MAX_W / img.width);
+          const w = img.width * esc;
+          const h = img.height * esc;
+
+          const cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          const ctx = cv.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          /* 🔍  Elegimos formato de salida:
+                 – Si era PNG ⇒ lo convertimos a JPEG para comprimir
+                 – Si era JPEG, sigue igual
+          */
+          const mimeSalida = 'image/jpeg';
+          const base64 = cv.toDataURL(mimeSalida, calidad);   // calidad 0.4–0.9
+          const kb = Math.round((base64.length * 3) / 4 / 1024);
+
+          if (kb > LIMITE_KB && calidad > 0.4) {
+            // nuevo intento con calidad más baja
+            console.log("Intento último");
+            return intentar(0.4);
+          }
+          if (kb > LIMITE_KB) {
+            console.log("Imagen muy grande");
+            return reject(`Imagen demasiado grande (${kb} KB)`);
+          }
+          // Éxito
+          if (debug) {
+            console.log("Éxito dice...");
+            return resolve({ base64, kb });
+          }
+          resolve(base64);
+        };
+        img.onerror = () => reject('Error al cargar imagen');
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(archivo);
+    };
+
+    if (!/^image\/(jpeg|png)$/i.test(archivo.type)) {
+      return reject('Formato no soportado (solo JPG / PNG)');
+    }
+    intentar(0.7);    // primer intento con calidad 0.7
+  });
+}
+
+
+function _convertirArchivoABase64(archivo) {
+  console.log("Convirtiendo archivo");
   return new Promise((resolve, reject) => {
     const intentarCompresion = (calidad) => {
       const img = new Image();
