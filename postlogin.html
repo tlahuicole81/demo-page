@@ -221,14 +221,6 @@
       border-radius: 10px;
     }
 
-    /* #previewCompEvento img {
-      max-height: 200px;
-      width: auto;
-      display: block;
-      margin-top: 10px;
-      object-fit: contain;
-    } */
-
     .laPreviewComEvent img {
       max-height: 200px;
       width: auto;
@@ -302,16 +294,9 @@
     <div id="userDetails" style="display: none;">
       <h3 id="fichaID">Ficha del Asociado</h3>
 
-      <!-- <input type="file" id="comprobanteSeguro" accept="image/jpeg,image/png">
-      <div id="previewSeguro"></div> -->
-
       <!-- Dentro de #userDetails (arriba del primer <div>) -->
       <input id="fotoInput" class="edit-field-asociados" type="file" accept="image/jpeg,image/png">
       <div id="previewImgAsociado" class="foto-asociado">
-        <!-- <img id="fotoAsociado" src="" alt="Foto del asociado"> -->
-        <!-- <div id="previewImgAsociado"></div> -->
-        <!-- Este input solo aparece en modo edición -->
-        <!-- <input id="fotoInput" class="edit-field-asociados" type="file" accept="image/jpeg,image/png"> -->
       </div>
 
       <div>
@@ -629,7 +614,7 @@
 
   <div id="toast" class="toast"></div>
 
-  <script src="../rutinas/utilidades.js"></script>
+  <script src="utilidades.js"></script>
   <script src="postlogin.js"></script>
   <script src="secc_clubes.js"></script>
   <script src="secc_asociados.js"></script>
