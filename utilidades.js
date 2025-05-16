@@ -1,4 +1,4 @@
-const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbzWtKd-RW_5cLN1aH85L6y7bdyZgR2jFL0YRL0xeUP1lQ_iZg4INwF3qiw27CGfeUzSpA/exec"; //prueba29
+const URL_ACTIVA = "https://script.google.com/macros/s/AKfycbxb2sFaHYYt5Zf5YeYwnRnn5JZKA5_4uzIfnLeuLAfroPDAovKVqVYwTmQTPFrSiFeXBQ/exec"; //prueba30
 
 const URL_ACTIVA0 = 'https://script.google.com/macros/s/AKfycbw7TX3aK6ddk7q8qqML4VF9DkDWoRebNIOY6bzQOVmAsb1gvsgljHyp08LkZQVOtTP-/exec'
 
