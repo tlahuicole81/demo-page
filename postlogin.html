@@ -70,12 +70,6 @@
     }
 
     #userDetails {
-      /* margin: 20px;
-      padding: 15px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
-
       display: grid;
       grid-template-columns: 160px 1fr;
       /* 160 px para la foto */
@@ -221,6 +215,14 @@
       border-radius: 10px;
     }
 
+    /* #previewCompEvento img {
+      max-height: 200px;
+      width: auto;
+      display: block;
+      margin-top: 10px;
+      object-fit: contain;
+    } */
+
     .laPreviewComEvent img {
       max-height: 200px;
       width: auto;
@@ -274,7 +276,7 @@
     <button id="btnAsociados" onclick="showContent('usuarios')">Asociados</button>
     <button id="btnClubes" onclick="showContent('clubes')">Clubes</button>
     <button id="btnEventos" onclick="showContent('eventos')">Eventos</button>
-    <button id="btnCompetencia">Competencias</button>
+    <button id="btnCompetencia" onclick="showContent('divCompetencias')">Competencias</button>
   </div>
   <!-- class="content" --- con esta clase se selecciona el elemento activo -->
   <!-- Sección de usuarios -->
@@ -294,9 +296,12 @@
     <div id="userDetails" style="display: none;">
       <h3 id="fichaID">Ficha del Asociado</h3>
 
+      <!-- <input type="file" id="comprobanteSeguro" accept="image/jpeg,image/png">
+      <div id="previewSeguro"></div> -->
+
       <!-- Dentro de #userDetails (arriba del primer <div>) -->
       <input id="fotoInput" class="edit-field-asociados" type="file" accept="image/jpeg,image/png">
-      <div id="previewImgAsociado" class="foto-asociado">
+      <div id="previewImgAsociado" class="foto-asociado">       
       </div>
 
       <div>
@@ -560,9 +565,9 @@
   <!-- FIN de sección EVENTOS -->
 
   <!-- Sección de competencias -->
-  <div id="competencias" class="content">
+  <div id="divCompetencias" class="content">
     <h2>Generar una competencia</h2>
-    <label for="competenciasSelect">Selección de eventos:</label>
+    <label for="competenciasSelect">Selección de competencias:</label>
     <select id="competenciasSelect">
     </select>
 
@@ -571,7 +576,7 @@
       <h3 id="fichaCompetencia">Competencias</h3>
 
       <div>
-        <label for="eventCompetencia">Cartel (foto del evento):</label>        
+        <label for="competenciaImg">Cartel (foto de la competencia):</label>        
         <input class="edit-field-evento" id="fotoCompetenciaInput" type="file" accept="image/jpeg,image/png">
         <div class="laPreviewComEvent"  id="previewCompetencia"></div>
       </div>
@@ -579,7 +584,7 @@
       <label for="competenciaName">Nombre de la competencia:</label>
       <input type="text" id="competenciaName" name="competenciaName" required>
 
-      <label for="competenciaLugar">Nombre de la competencia:</label>
+      <label for="competenciaLugar">Lugar de la competencia:</label>
       <input type="text" id="competenciaLugar" name="competenciaLugar" required>
 
       <label for="competenciStart">Fecha de inicio:</label>
@@ -597,11 +602,14 @@
       <label for="competenciaCosto">Costo:</label>
       <input type="text" id="competenciaCosto" name="competenciaCosto" required>
 
-      <label for="competenciaDDeposito">Costo:</label>
+      <label for="competenciaDDeposito">Datos para depositar:</label>
       <input type="text" id="competenciaDDeposito" name="competenciaDDeposito" required>
 
-      <label for="competenciaCelular">Celular:</label>
-      <input type="text" id="competenciaCelular" name="competenciaCelular" required>
+      <label for="competenciaCelular">Celular:</label>      
+      <input type="text" id="competenciaCelular" name="competenciaCelular"
+        placeholder="Teléfono a 10 dígitos" pattern="\d{10}" maxlength="10"
+        title="Debe contener exactamente 10 dígitos numéricos" required>
+
 
       <label for="competenciaCorreo">Correo:</label>
       <input type="text" id="competenciaCorreo" name="competenciaCorreo" required>
@@ -609,6 +617,10 @@
       <label for="competenciaWeb">Página web:</label>
       <input type="text" id="competenciaWeb" name="competenciaWeb" required>
 
+      <div class="action-buttons">
+        <button class="btnClic" id="salvarCompetencia">Guardar</button>
+        <button class="btnClic laEliminacion" id="eliminarCompetencia" style="display: none;">Eiminar</button>
+      </div>
     </div>
   </div>
 
@@ -619,6 +631,7 @@
   <script src="secc_clubes.js"></script>
   <script src="secc_asociados.js"></script>
   <script src="secc_even_comp.js"></script>
+  <script src="secc_comp.js"></script>
 </body>
 
 </html>
