@@ -1,49 +1,11 @@
 "use strict";
 
-let modoEdicionCompe = false;
-let nombreOriginalCompe = "";
-
-const competenciasSelect = $("competenciasSelect");
 
 const selectClubes = $("clubesSelect");
 const inputClub = $("clubNombreInput");
 const form = $("clubForm");
 
 function inicializarClubes() {
-  cargaDatosSlctCom();
-
-  competenciasSelect.addEventListener("change", () => {
-    const seleccionComp = eventosSelect.value;
-    console.log("Selección de evento (value): ", seleccionComp);
-    switch (seleccionComp) {
-      case "":
-        console.log("A ocultar la ficha de competencias...");
-        eventosDetails.style.display = "none";
-        break;
-      case "Nuevo evento":
-        console.log("Nuevo evento...");
-        const eventoSinDatos = creaEventoVacIo();
-        populateFormEventos(eventoSinDatos);
-        eventosDetails.style.display = "block";
-        modoEdicionEvento = false;
-        beliminarEvento.style.display = "none";
-        break;
-      default:
-        // Si estamos acá se editará la información de los eventos.         
-        console.log("Acá se leerá y pondrá la información de los eventos ya registrados");
-        //const selectedEvento = eventos.find(evento => evento[fieldMappingEventos.eventName] === eventosSelect.value);
-        const selectedEvento = eventos.find(evento => evento["Nombre del evento"] === eventosSelect.value);
-        populateFormEventos(selectedEvento);
-        nombreOriginalEvento = selectedEvento["Nombre del evento"];
-        eventosDetails.style.display = "block"; //
-        modoEdicionEvento = true;
-        beliminarEvento.style.display = "block";
-    }
-    // Restauramos valores:
-    objCambios = {};
-  });
-
-
   // Llenar selector
   selectClubes.innerHTML = '<option value="">Selecciona un club</option>';
   losClubes.forEach(club => {
@@ -94,15 +56,4 @@ function inicializarClubes() {
     $("nuevoClubInput").value = "";
     inicializarClubes();
   });
-}
-
-
-function cargaDatosSlctCom() {
-  opcComp = [];
-  opcComp[0] = "Nueva competencia"; //  
-  competencias.forEach(nombre => {
-    // fieldMappingEventos.eventName es lo mismo que 'Nombre del evento'
-    opcComp.push(nombre[fieldMappingCompetencia.competenciaName]);
-  });
-  generarOpcionesSelect("competenciasSelect", opcComp);
 }
