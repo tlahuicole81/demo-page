@@ -52,9 +52,6 @@ window.addEventListener('DOMContentLoaded', () => {
   elCorreo = elCorreo.replace(/^"|"$/g, '');
   console.log("El estado es: ", elEstado);
   console.log("La asociación: ", nombreAsociacion);
-  //console.log("El token de sesión es: ", elToken);
-  //console.log("El correo es: ", elCorreo);  
-  //console.log("El número de elementos en el mapa es: ", Object.keys(fieldMapping).length);
   console.log("Los eventos: ", eventos);
   console.log("Las competencias", competencias);
   inicializarValoresAsociados();
@@ -204,6 +201,14 @@ async function enviarPOST(jsonData) {
     if (result.success) {
       return result;
 
+      // switch (result.message2) {
+      //   case 'EliminarAsociado':
+      //     // Respuesta exitosa, se procede a eliminar referencias al usuario eliminado
+      //     // También regresará           
+      //     eliminnaPrueba01();
+
+      //     break;
+      // }
     } else {
       console.log("Respuesta de error recibida del servidor: ", result.message);
       alert(result.message);
@@ -226,8 +231,11 @@ function eliminnaPrueba01() {
       option.remove();
     }
   })
+  console.log("Los ", asociados);
+  console.log(`Usuario ${idUsuarioEliminado} eliminado.`);
   const bt4 = $('eliminarAsociadoBtn');
   bt4.innerHTML = "Eliminar ficha";
   habilitaBotonesAsociado();
-  ocultarFichaAsociados();  
+  ocultarFichaAsociados();
+  
 }
