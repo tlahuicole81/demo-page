@@ -1,7 +1,4 @@
-/* ──────────────────────────────────────────────────────────────
-       Tema: "YairUI Base" (mobile-first, limpio y táctil)
-       ────────────────────────────────────────────────────────────── */
-    :root{
+:root{
       --bg: #0b0d12;
       --card: #11151c;
       --muted: #8891a7;
@@ -104,3 +101,202 @@
       border:1px solid var(--border); border-radius:12px; padding:.9rem 1rem; box-shadow:var(--shadow);
     }
     .toast.show{ display:block; }
+
+
+    /* inventario.css */
+
+.inv-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+}
+
+.inv-toolbar{
+  display:flex;
+  gap:.5rem;
+}
+.inv-input{
+  flex:1;
+  padding:.5rem .6rem;
+  border-radius:10px;
+  border:1px solid #1f2937;
+  background:#050816;
+  color:#e5e7eb;
+  font-size:13px;
+}
+.inv-input:nth-child(2){
+  flex:0 0 40%;
+}
+
+.inv-table-wrap{
+  border-radius:14px;
+  border:1px solid #111827;
+  background:#020817;
+  overflow:hidden;
+}
+
+.inv-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+.inv-table thead{
+  position:sticky;
+  top:0;
+  background:#020817;
+  z-index:1;
+}
+.inv-table th,
+.inv-table td{
+  padding:.45rem .35rem;
+  border-bottom:1px solid #111827;
+  text-align:left;
+  white-space:nowrap;
+}
+.inv-table th{
+  font-weight:500;
+  font-size:11px;
+  color:#9ca3af;
+}
+
+/* Fila PT (nivel 1) */
+.inv-pt-row{
+  cursor:pointer;
+  background:#020817;
+}
+.inv-pt-row:hover{
+  background:#040b16;
+}
+.inv-pt-label{
+  display:flex;
+  align-items:center;
+  gap:.25rem;
+}
+.inv-pt-toggle{
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  border:1px solid #4b5563;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  background:transparent;
+  color:#9ca3af;
+}
+
+/* Fila detalle con lotes (nivel 2) */
+.inv-pt-detail-row td{
+  padding:0;
+  background:#020817;
+}
+.inv-lotes-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+  background:#030712;
+}
+.inv-lotes-table th,
+.inv-lotes-table td{
+  padding:.35rem .35rem;
+  border-bottom:1px solid #111827;
+}
+.inv-lotes-head{
+  color:#6b7280;
+  font-weight:400;
+}
+
+/* Botón eventos */
+.inv-ev-btn{
+  padding:.15rem .35rem;
+  border-radius:999px;
+  border:1px solid #4b5563;
+  font-size:10px;
+  background:transparent;
+  color:#9ca3af;
+}
+.inv-ev-btn.has{
+  border-color:#22c55e;
+  color:#22c55e;
+}
+
+/* Modal nivel 3 */
+.inv-modal[hidden]{ display:none; }
+.inv-modal{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  z-index:40;
+}
+.inv-modal-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.5);
+}
+.inv-modal-card{
+  position:relative;
+  width:100%;
+  max-width:480px;
+  max-height:70vh;
+  margin:0 0 1rem;
+  padding:.8rem .8rem 1rem;
+  background:#020817;
+  border-radius:16px;
+  border:1px solid #111827;
+  box-shadow:0 18px 60px rgba(0,0,0,.6);
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+  z-index:41;
+}
+.inv-modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:.5rem;
+}
+.inv-modal-title{
+  font-size:14px;
+  font-weight:600;
+}
+.inv-modal-sub{
+  font-size:11px;
+  color:#9ca3af;
+}
+.inv-modal-body{
+  overflow:auto;
+  font-size:11px;
+  display:flex;
+  flex-direction:column;
+  gap:.4rem;
+}
+
+.inv-btn{
+  padding:.3rem .6rem;
+  border-radius:10px;
+  border:1px solid #4b5563;
+  background:transparent;
+  color:#9ca3af;
+  font-size:11px;
+}
+.inv-btn-ghost:hover{
+  background:#030712;
+}
+.inv-ev-item{
+  padding:.35rem .4rem;
+  border-radius:10px;
+  border:1px solid #111827;
+  background:#030712;
+}
+.inv-ev-head{
+  display:flex;
+  justify-content:space-between;
+  gap:.4rem;
+  margin-bottom:.2rem;
+}
+.inv-ev-label{
+  font-size:10px;
+  color:#6b7280;
+}
