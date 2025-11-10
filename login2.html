@@ -24,7 +24,7 @@
       <div class="grid">
         <div class="field">
           <label class="label">Correo</label>
-          <input id="email" class="input" type="email" autocomplete="username" placeholder="tu@empresa.com" />
+          <input id="email" class="input" type="email" autocomplete="username" placeholder="tu correo" />
         </div>
         <div class="field">
           <label class="label">Contraseña</label>
@@ -51,8 +51,8 @@
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       // Eliminar un ítem específico
+      sessionStorage.removeItem('elInventario');
       /*sessionStorage.removeItem('asociados');      
-
       Password: df&Bc)F9
 
       */
@@ -85,12 +85,13 @@
           body: JSON.stringify({ destino, email, password }) // JSON.stringify() toma un objeto de JavaScript y lo transforma en una cadena JSON.
         });
 
+
         const result = await response.json();
         console.log("Resultado: ", result.success)
         if (result.success) {
           console.log('Login exitoso. ¡Bienvenido!');
-          // Guardar el token de sesión y la información del usuario          
-          console.log("Datos recibidos: ", JSON.stringify(result));
+          // Guardar el token de sesión y la información del usuario
+          sessionStorage.setItem('elInventario', JSON.stringify(result.data));              
           window.location.href = 'main.html'; // Redirige a otra página.
         } else {          
           message.textContent = result.message || 'Credenciales incorrectas.';
