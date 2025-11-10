@@ -10,7 +10,52 @@
 </head>
 <body>
 <div class="app" id="app">
-  
+  <!-- inventario.html (sección dentro de tu página principal autenticada) -->
+
+<section id="sec-inventario" class="inv-wrap">
+  <div class="inv-toolbar">
+    <input id="invSearch" class="inv-input" placeholder="Buscar PT, lote o código..." />
+    <select id="invFiltro" class="inv-input">
+      <option value="">Todo</option>
+      <option value="sinStock">Sólo con stock</option>
+      <option value="conEventos">Con ventas</option>
+    </select>
+  </div>
+
+  <div class="inv-table-wrap">
+    <table class="inv-table">
+      <thead>
+        <tr>
+          <th>PT</th>
+          <th>F. PT</th>
+          <th>Recib.</th>
+          <th>Vend.</th>
+          <th>Disp.</th>
+          <th>Ev.</th>
+        </tr>
+      </thead>
+      <tbody id="invBody">
+        <!-- Se llena por JS -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Modal para eventos (nivel 3) -->
+<div id="modalEventos" class="inv-modal" hidden>
+  <div class="inv-modal-backdrop"></div>
+  <div class="inv-modal-card">
+    <div class="inv-modal-header">
+      <div>
+        <div class="inv-modal-title">Eventos del lote</div>
+        <div id="modalEventosSub" class="inv-modal-sub"></div>
+      </div>
+      <button id="modalEventosClose" class="inv-btn inv-btn-ghost">Cerrar</button>
+    </div>
+    <div id="modalEventosBody" class="inv-modal-body"></div>
+  </div>
+</div>
+
   <!-- ───────────── App ───────────── -->
   <div id="view-app">
     <header class="appbar">
@@ -222,410 +267,6 @@
   <div id="toast" class="toast"></div>
 </div>
 
-<script>
-/* ──────────────────────────────────────────────────────────────
-   Estado, API y utilidades
-   ────────────────────────────────────────────────────────────── */
-const GAS_BASE = localStorage.getItem('stWriteUrl') || ''; // Se puede configurar en Ajustes
-const API = {
-  /** En producción: usa tus 2 endpoints o uno con ?fn=...  */
-  baseRead: () => localStorage.getItem('stReadUrl') || GAS_BASE,
-  baseWrite: () => localStorage.getItem('stWriteUrl') || GAS_BASE,
-
-  async login(email, password){
-    // IMPORTANTE: Ajustar URL a tu despliegue GAS (web app con permisos "Cualquiera con el enlace")
-    const url = `${this.baseWrite() || ''}` || 'https://script.google.com/macros/s/TU_DEPLOY/exec';
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'login', email, password })
-    });
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.message || 'Credenciales inválidas');
-    return data; // { ok, token, role, user:{name,email} }
-  },
-
-  async getInventory(q='', cat=''){
-    const url = `${this.baseRead()}?action=inventory&q=${encodeURIComponent(q)}&cat=${encodeURIComponent(cat)}`;
-    const res = await fetch(url, { headers:authHeader() });
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.message || 'No se pudo leer inventario');
-    return data.items || [];
-  },
-
-  async addEntry(payload){
-    const res = await fetch(this.baseWrite(),{
-      method:'POST', headers: { ...authHeader(), 'Content-Type':'application/json' },
-      body: JSON.stringify({ action:'addEntry', ...payload })
-    });
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.message || 'No se pudo registrar entrada');
-    return data;
-  },
-
-  async addExit(payload){
-    const res = await fetch(this.baseWrite(),{
-      method:'POST', headers: { ...authHeader(), 'Content-Type':'application/json' },
-      body: JSON.stringify({ action:'addExit', ...payload })
-    });
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.message || 'No se pudo registrar salida');
-    return data;
-  },
-
-  async addRequest(payload){
-    const res = await fetch(this.baseWrite(),{
-      method:'POST', headers: { ...authHeader(), 'Content-Type':'application/json' },
-      body: JSON.stringify({ action:'request', ...payload })
-    });
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.message || 'No se pudo enviar solicitud');
-    return data;
-  },
-
-  async latestEntries(){ // feed simple
-    const url = `${this.baseRead()}?action=latestEntries`;
-    const res = await fetch(url, { headers:authHeader() });
-    const data = await res.json();
-    if(!data.ok) throw new Error('No se pudieron leer entradas');
-    return data.items || [];
-  },
-
-  async latestExits(){
-    const url = `${this.baseRead()}?action=latestExits`;
-    const res = await fetch(url, { headers:authHeader() });
-    const data = await res.json();
-    if(!data.ok) throw new Error('No se pudieron leer salidas');
-    return data.items || [];
-  },
-
-  async myRequests(email){
-    const url = `${this.baseRead()}?action=myRequests&email=${encodeURIComponent(email||state.user?.email||'')}`;
-    const res = await fetch(url, { headers:authHeader() });
-    const data = await res.json();
-    if(!data.ok) throw new Error('No se pudieron leer solicitudes');
-    return data.items || [];
-  },
-};
-
-// Estado global mínimo (memoria cliente)
-const state = {
-  token: localStorage.getItem('token') || '',
-  role: localStorage.getItem('role') || '',
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
-  tab: 'inventario'
-};
-
-function authHeader(){
-  return state.token ? { 'Authorization':'Bearer '+state.token } : {};
-}
-
-function setSession({token, role, user}){
-  state.token = token; state.role = role; state.user = user;
-  localStorage.setItem('token', token);
-  localStorage.setItem('role', role);
-  localStorage.setItem('user', JSON.stringify(user));
-}
-
-function clearSession(){
-  state.token=''; state.role=''; state.user=null;
-  localStorage.removeItem('token'); localStorage.removeItem('role'); localStorage.removeItem('user');
-}
-
-/* ──────────────────────────────────────────────────────────────
-   UI helpers
-   ────────────────────────────────────────────────────────────── */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-function toast(msg, kind='info'){
-  const el = $('#toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  el.style.borderColor = kind==='error'? 'var(--err)' : kind==='ok'? 'var(--ok)' : 'var(--border)';
-  setTimeout(()=>el.classList.remove('show'), 2500);
-}
-
-function setRoleGating(role){
-  // Pestaña ajustes
-  $('#tab-ajustes').hidden = role !== 'admin';
-  // Secciones o botones con data-requires-role="admin"
-  $$('[data-requires-role="admin"]').forEach(n => { n.hidden = role !== 'admin'; });
-  // Badge
-  $('#roleBadge').textContent = role==='admin' ? 'Admin' : 'Invitado';
-}
-
-function switchTab(tab){
-  state.tab = tab;
-  // Tabs UI
-  $$('.tab').forEach(b => b.classList.toggle('active', b.dataset.go === tab));
-  // Secciones
-  $$('main section').forEach(s => s.hidden = (s.dataset.tab !== tab));
-}
-
-/* ──────────────────────────────────────────────────────────────
-   Renderizadores
-   ────────────────────────────────────────────────────────────── */
-function renderInventory(items){
-  const tbody = $('#tblInv tbody');
-  tbody.innerHTML = '';
-  if(!items.length){
-    tbody.innerHTML = `<tr><td colspan="5" class="muted">Sin resultados</td></tr>`;
-    return;
-  }
-  const frag = document.createDocumentFragment();
-  for(const it of items){
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><strong>${it.code||''}</strong></td>
-      <td>${it.name||''}</td>
-      <td>${(+it.stock||0).toLocaleString()}</td>
-      <td>${it.um||''}</td>
-      <td class="muted">${it.cat||''}</td>
-    `;
-    frag.appendChild(tr);
-  }
-  tbody.appendChild(frag);
-}
-
-function cardLine(label, value){
-  return `<div class="row" style="justify-content:space-between"><div class="muted">${label}</div><div>${value}</div></div>`;
-}
-
-function renderMiniFeed(containerId, rows){
-  const cont = $('#'+containerId);
-  cont.innerHTML = '';
-  if(!rows.length){
-    cont.innerHTML = `<div class="muted">Sin registros</div>`;
-    return;
-  }
-  const frag = document.createDocumentFragment();
-  for(const r of rows){
-    const div = document.createElement('div');
-    div.className = 'card panel';
-    div.innerHTML = `
-      <div class="row" style="justify-content:space-between">
-        <strong>${r.code||r.item||'-'}</strong>
-        <span class="chip">${r.when || r.date || ''}</span>
-      </div>
-      ${cardLine('Cantidad', r.qty || r.amount || 0)}
-      ${r.who ? cardLine('Responsable', r.who) : ''}
-      ${r.note ? `<div class="muted" style="margin-top:.5rem">${r.note}</div>` : ''}
-    `;
-    frag.appendChild(div);
-  }
-  cont.appendChild(frag);
-}
-
-function renderRequests(containerId, rows){
-  const cont = $('#'+containerId);
-  cont.innerHTML = '';
-  if(!rows.length){
-    cont.innerHTML = `<div class="muted">Sin solicitudes</div>`;
-    return;
-  }
-  const frag = document.createDocumentFragment();
-  for(const r of rows){
-    const div = document.createElement('div');
-    div.className = 'card panel';
-    div.innerHTML = `
-      <div class="row" style="justify-content:space-between">
-        <strong>${r.material||r.item||'-'}</strong>
-        <span class="chip">${r.status||'Enviada'}</span>
-      </div>
-      ${cardLine('Cantidad', r.qty||0)}
-      ${cardLine('Urgencia', r.urgency||'Normal')}
-      ${cardLine('Área/Proyecto', r.area||'-')}
-      ${cardLine('Fecha', r.when||r.date||'-')}
-      ${r.note ? `<div class="muted" style="margin-top:.5rem">${r.note}</div>` : ''}
-    `;
-    frag.appendChild(div);
-  }
-  cont.appendChild(frag);
-}
-
-/* ──────────────────────────────────────────────────────────────
-   Eventos y flujo
-   ────────────────────────────────────────────────────────────── */
-async function onLogin(){
-  const email = $('#email').value.trim();
-  const password = $('#password').value;
-  if(!email || !password){ toast('Completa usuario y contraseña','error'); return; }
-  $('#btnLogin').disabled = true;
-  try{
-    const data = await API.login(email, password);
-    setSession(data);
-    bootApp();
-    toast(`¡Bienvenido, ${data.user?.name||email}!`,'ok');
-  }catch(err){
-    console.error(err);
-    toast(err.message || 'No se pudo iniciar sesión','error');
-  }finally{
-    $('#btnLogin').disabled = false;
-  }
-}
-
-async function bootApp(){
-  // Oculta login, muestra app
-  $('#view-login').hidden = true;
-  $('#view-app').hidden = false;
-
-  // Estado UI
-  setRoleGating(state.role);
-  $('#envBadge').textContent = API.baseWrite() ? 'Conectado a GAS' : 'Demo local';
-  $('#envBadge').style.borderColor = API.baseWrite() ? 'var(--ok)' : 'var(--warn)';
-
-  // Tab inicial
-  switchTab(state.tab);
-
-  // Cargar inventario inicial
-  await refreshInventory();
-  // Feeds rápidos
-  try{ renderMiniFeed('listaEntradas', await API.latestEntries()); }catch(e){}
-  try{ renderMiniFeed('listaSalidas', await API.latestExits()); }catch(e){}
-  try{ renderRequests('listaSolicitudes', await API.myRequests()); }catch(e){}
-}
-
-async function refreshInventory(){
-  const q = $('#qInv').value.trim();
-  const cat = $('#fCat').value;
-  try{
-    const items = await API.getInventory(q, cat);
-    renderInventory(items);
-  }catch(err){
-    toast(err.message || 'Error cargando inventario', 'error');
-  }
-}
-
-/* Debounce para búsqueda */
-function debounce(fn, ms){
-  let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
-}
-
-/* ──────────────────────────────────────────────────────────────
-   Listeners
-   ────────────────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', async () => {
-  // Autologin si hay sesión
-  if(state.token && state.role){
-    bootApp();
-  }
-
-  // Login
-  $('#btnLogin').addEventListener('click', onLogin);
-  $('#demoLogin').addEventListener('click', (e)=>{
-    e.preventDefault();
-    $('#email').value = 'demo@ejemplo.com';
-    $('#password').value = 'demo123';
-  });
-
-  // Logout
-  $('#logoutBtn').addEventListener('click', ()=>{
-    clearSession();
-    location.reload();
-  });
-
-  // Tabs
-  $$('.tab').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const tab = b.dataset.go;
-      // Gateo visual: si usuario no es admin y toca Ajustes
-      if(tab==='ajustes' && state.role!=='admin'){ toast('Requiere rol de administrador','error'); return; }
-      switchTab(tab);
-      if(tab==='inventario') refreshInventory();
-    });
-  });
-
-  // Inventario
-  $('#qInv').addEventListener('input', debounce(refreshInventory, 300));
-  $('#fCat').addEventListener('change', refreshInventory);
-  $('#btnRefInv').addEventListener('click', refreshInventory);
-
-  // Entradas
-  $('#btnEntrada').addEventListener('click', async ()=>{
-    const payload = {
-      code: $('#enCod').value.trim(),
-      qty: +$('#enQty').value || 0,
-      vendor: $('#enProv').value.trim(),
-      ref: $('#enRef').value.trim(),
-      note: $('#enNotas').value.trim()
-    };
-    if(!payload.code || payload.qty<=0){ toast('Código y cantidad válidos','error'); return; }
-    try{
-      await API.addEntry(payload);
-      toast('Entrada registrada','ok');
-      // Limpia
-      ['enCod','enQty','enProv','enRef','enNotas'].forEach(id=>$('#'+id).value='');
-      renderMiniFeed('listaEntradas', await API.latestEntries());
-      refreshInventory();
-    }catch(err){ toast(err.message || 'Error registrando entrada','error'); }
-  });
-  $('#btnRefEnt').addEventListener('click', async ()=>{
-    try{ renderMiniFeed('listaEntradas', await API.latestEntries()); }catch(err){ toast('Error al refrescar','error'); }
-  });
-
-  // Salidas
-  $('#btnSalida').addEventListener('click', async ()=>{
-    const payload = {
-      code: $('#saCod').value.trim(),
-      qty: +$('#saQty').value || 0,
-      who: $('#saResp').value.trim(),
-      to: $('#saDestino').value.trim(),
-      note: $('#saNotas').value.trim()
-    };
-    if(!payload.code || payload.qty<=0){ toast('Código y cantidad válidos','error'); return; }
-    try{
-      await API.addExit(payload);
-      toast('Salida registrada','ok');
-      ['saCod','saQty','saResp','saDestino','saNotas'].forEach(id=>$('#'+id).value='');
-      renderMiniFeed('listaSalidas', await API.latestExits());
-      refreshInventory();
-    }catch(err){ toast(err.message || 'Error registrando salida','error'); }
-  });
-  $('#btnRefSal').addEventListener('click', async ()=>{
-    try{ renderMiniFeed('listaSalidas', await API.latestExits()); }catch(err){ toast('Error al refrescar','error'); }
-  });
-
-  // Solicitud
-  $('#btnSolicitar').addEventListener('click', async ()=>{
-    const payload = {
-      who: $('#soNombre').value.trim() || state.user?.name || state.user?.email,
-      email: state.user?.email,
-      area: $('#soArea').value.trim(),
-      material: $('#soMat').value.trim(),
-      qty: +$('#soQty').value || 0,
-      urgency: $('#soUrg').value,
-      note: $('#soNotas').value.trim()
-    };
-    if(!payload.material || payload.qty<=0){ toast('Material y cantidad válidos','error'); return; }
-    try{
-      await API.addRequest(payload);
-      toast('Solicitud enviada','ok');
-      ['soNombre','soArea','soMat','soQty','soNotas'].forEach(id=>$('#'+id).value='');
-      renderRequests('listaSolicitudes', await API.myRequests());
-    }catch(err){ toast(err.message || 'Error al enviar solicitud','error'); }
-  });
-  $('#btnRefSol').addEventListener('click', async ()=>{
-    try{ renderRequests('listaSolicitudes', await API.myRequests()); }catch(err){ toast('Error al refrescar','error'); }
-  });
-
-  // Ajustes (admin)
-  // Pre-cargar ajustes guardados
-  $('#stReadUrl').value = localStorage.getItem('stReadUrl') || '';
-  $('#stWriteUrl').value = localStorage.getItem('stWriteUrl') || '';
-  $('#stAlmacen').value = localStorage.getItem('stAlmacen') || 'Bodega';
-  $('#stUM').value = localStorage.getItem('stUM') || 'pz';
-
-  $('#btnGuardarAjustes').addEventListener('click', ()=>{
-    if(state.role!=='admin'){ toast('Sólo admin','error'); return; }
-    localStorage.setItem('stReadUrl', $('#stReadUrl').value.trim());
-    localStorage.setItem('stWriteUrl', $('#stWriteUrl').value.trim());
-    localStorage.setItem('stAlmacen', $('#stAlmacen').value.trim());
-    localStorage.setItem('stUM', $('#stUM').value.trim());
-    $('#envBadge').textContent = API.baseWrite() ? 'Conectado a GAS' : 'Demo local';
-    toast('Ajustes guardados','ok');
-  });
-});
-</script>
 
 <!-- ──────────────────────────────────────────────────────────────
      Notas de implementación GAS (resumen rápido)
@@ -637,4 +278,6 @@ document.addEventListener('DOMContentLoaded', async () => {
      6) Opcional: usa CacheService para lecturas (inventario) y LockService para concurrencia en entradas/salidas
      7) Considera registrar TAG_GRABADA, etc., según tu flujo ESP32
      ────────────────────────────────────────────────────────────── -->
+     <!--<script src="postLoginY.js"></script> -->
+     <script src="inventario.js"></script>
 </html>
